@@ -1,0 +1,26 @@
+
+
+application:
+  validateInternal: false  # switch using internalApiKeys validation
+
+
+internalApiKeys:
+  anyClient: "random-string-that-clients-will-use-as-APIKey"
+
+
+externalApiKeys:
+  telegram: "telegram-bot-APIKey"
+
+
+database:
+  db: "db-name"
+  host: "db-host"
+  port: 5432
+  user: "db-user"
+  password: "db-pass"
+
+
+dataSources:
+  - name: "CryptoCompare"
+    apiKey: "CryptoCompare-APIKey"
+    url: "https://min-api.cryptocompare.com/data/v2/"

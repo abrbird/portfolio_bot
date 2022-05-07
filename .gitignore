@@ -1,0 +1,5 @@
+.idea
+pgadmin
+postgres-data
+
+config/config.yml

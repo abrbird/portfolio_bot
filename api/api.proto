@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+import "api/google/api/annotations.proto";
+
+option go_package="gitlab.ozon.dev/zBlur/homework_2/api";
+
+package api;
+
+message Empty {
+}
+
+message CreateUserRequest {
+  int64 Id = 1;
+  string UserName = 2;
+  string FirstName = 3;
+  string LastName = 4;
+}
+
+message RetrieveUserRequest {
+  int64 Id = 1;
+}
+
+message UpdateUserRequest {
+  int64 Id = 1;
+  string UserName = 2;
+  string FirstName = 3;
+  string LastName = 4;
+}
+
+message DeleteUserRequest {
+  int64 Id = 1;
+}
+
+message User {
+  int64 Id = 1;
+  string UserName = 2;
+  string FirstName = 3;
+  string LastName = 4;
+}
+
+service UserService {
+  rpc Create(CreateUserRequest) returns (Empty) {
+    option (google.api.http) = {
+      post: "/v1/users"
+      body: "*"
+    };
+  }
+  rpc Retrieve(RetrieveUserRequest) returns (User) {
+    option (google.api.http) = {
+      get: "/v1/users/{Id}"
+    };
+  }
+  rpc RetrieveOrCreate(CreateUserRequest) returns (User) {
+    option (google.api.http) = {
+      post: "/v1/users/{Id}"
+      body: "*"
+    };
+  }
+  rpc Update(UpdateUserRequest) returns (Empty) {
+    option (google.api.http) = {
+      put: "/v1/users/{Id}"
+      body: "*"
+    };
+  }
+  rpc Delete(DeleteUserRequest) returns (Empty) {
+    option (google.api.http) = {
+      delete: "/v1/users/{Id}"
+    };
+  }
+}

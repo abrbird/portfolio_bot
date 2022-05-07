@@ -1,0 +1,55 @@
+version: "3.3"
+
+services:
+  db:
+    container_name: pg_container
+    image: postgres:13.3
+    restart: always
+    user: root
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=homework_2
+    volumes:
+      - ./postgres-data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4:5.7
+    restart: always
+    user: root
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=example@mail.com
+      - PGADMIN_DEFAULT_PASSWORD=postgres
+    volumes:
+      - ./pgadmin:/data
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+  app:
+    container_name: app
+    build: ./  # uses Dockerfile
+    command: /bin/sh -c "/usr/local/bin/app"  # TODO: add migrations (goose up)
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=homework_2
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"  # grpc
+      - "8090:8090"  # grpc-gateway
+
+  telegram_bot:
+    container_name: telegram_bot
+    build: ./  # uses Dockerfile
+    command: /bin/sh -c "/usr/local/bin/telegram_bot"
+    depends_on:
+      - db
+      - app
