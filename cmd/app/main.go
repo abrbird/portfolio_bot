@@ -2,39 +2,33 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"log"
-	"net"
-	"net/http"
-
 	"gitlab.ozon.dev/zBlur/homework-2/config"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/repository/sql_repository"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/server"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/service/service_impl"
 	"gitlab.ozon.dev/zBlur/homework-2/pkg/api"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"log"
+	"net"
+	"net/http"
 )
 
 func main() {
-	configFile, err := config.ParseConfig("config/config.yml")
+	config_, err := config.ParseConfig("config/config.yml")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(configFile.Database.Uri())
+	log.Println(config_.Database.Uri())
 
-	for i, source := range configFile.DataSources {
-		fmt.Printf("dataSource %v %v %v \n", i, source.Name, source.Url)
-	}
-
-	runServer(configFile)
+	runServer(config_)
 }
 
-func runServer(configFile *config.File) {
+func runServer(config_ *config.Config) {
 
-	db, err := server.NewDB(configFile.Database.Uri())
+	db, err := server.NewDB(config_.Database.Uri())
 	if err != nil {
 		log.Fatalf("db connection failed: %v", err)
 	}
@@ -48,7 +42,30 @@ func runServer(configFile *config.File) {
 	repository := sql_repository.New(db)
 	service := service_impl.New()
 
+	//startInterval :=
+	//endInterval :=
+	//
+	//intervals := service.MarketPrice().GetIntervals(startInterval, endInterval, )
+	//// 9300 - btc, 4094 - aapl
+	//marketPricesRetrieved := service.MarketPrice().RetrieveInterval(4094, startInterval, endInterval, repository.MarketPrice())
+	//if marketPricesRetrieved.Error != nil {
+	//	log.Fatal(err)
+	//}
+	//marketPrices, blanksCount := service.MarketPrice().FillBlanks(marketPricesRetrieved.MarketPrices, intervals)
+	//
+	//blanksRatio := float64(blanksCount) / float64(len(intervals))
+	//
+	//fmt.Println(blanksRatio)
+	//fmt.Println(intervals[len(intervals)-5:])
+	//fmt.Println(marketPrices[len(marketPrices)-5:])
+
+	//d, err := service.MarketPrice().GetMarketItemPrices(9300, int64(1648771200), time.Now().Unix(), config_.Application.HistoryInterval, repository.MarketPrice())
+	//if err != nil {
+	//
+	//}
+
 	newServer := server.NewServer(
+		*config_,
 		repository,
 		service,
 	)
@@ -58,16 +75,16 @@ func runServer(configFile *config.File) {
 	}
 
 	interceptors := make([]grpc.UnaryServerInterceptor, 0)
-	if configFile.Application.ValidateInternal {
-		interceptors = append(interceptors, server.AuthInterceptorBuilder(configFile.InternalAPIKeys))
+	if config_.Application.ValidateInternal {
+		interceptors = append(interceptors, server.AuthInterceptorBuilder(config_.ClientAPIKeys))
 	}
-	interceptors = append(interceptors, server.TimeoutInterceptor)
+	interceptors = append(interceptors, server.TimeoutInterceptor, server.ErrorLogInterceptor)
 
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(interceptors...),
 	)
 
-	api.RegisterUserServiceServer(grpcServer, newServer)
+	api.RegisterUserPortfolioServiceServer(grpcServer, newServer)
 
 	log.Println("Serving gRPC on 0.0.0.0:8080")
 	go func() {
@@ -92,7 +109,7 @@ func runServer(configFile *config.File) {
 	gwmux := runtime.NewServeMux(
 		runtime.WithIncomingHeaderMatcher(server.HeaderMatcher),
 	)
-	err = api.RegisterUserServiceHandler(context.Background(), gwmux, conn)
+	err = api.RegisterUserPortfolioServiceHandler(context.Background(), gwmux, conn)
 	if err != nil {
 		log.Fatalln("Failed to register gateway:", err)
 	}

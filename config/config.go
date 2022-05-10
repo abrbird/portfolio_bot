@@ -6,38 +6,12 @@ import (
 	"os"
 )
 
-type File struct {
-	Application     Application     `yaml:"application"`
-	InternalAPIKeys InternalAPIKeys `yaml:"internalApiKeys"`
-	ExternalAPIKeys ExternalAPIKeys `yaml:"externalApiKeys"`
-	Database        Database        `yaml:"database"`
-	DataSources     []DataSource    `yaml:"dataSources"`
-}
-
-type Application struct {
-	ValidateInternal bool `yaml:"validateInternal"`
-}
-
-type InternalAPIKeys struct {
-	AnyClient string `yaml:"anyClient"`
-}
-
-type ExternalAPIKeys struct {
-	Telegram string `yaml:"telegram"`
-}
-
-type Database struct {
-	DB       string `yaml:"db"`
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
-}
-
-type DataSource struct {
-	Name   string `yaml:"name"`
-	Url    string `yaml:"url"`
-	ApiKey string `yaml:"apiKey"`
+type Config struct {
+	Application     Application
+	ClientAPIKeys   ClientAPIKeys
+	ExternalAPIKeys ExternalAPIKeys
+	Database        Database
+	DataSourcesMap  map[string]DataSource
 }
 
 func (d *Database) Uri() string {
@@ -56,7 +30,7 @@ func ParseFile(fileBytes []byte) (*File, error) {
 	return &configFile, nil
 }
 
-func ParseConfig(filepath string) (*File, error) {
+func ParseConfig(filepath string) (*Config, error) {
 	b, err := os.ReadFile(filepath)
 	if err != nil {
 		return nil, err
@@ -67,5 +41,18 @@ func ParseConfig(filepath string) (*File, error) {
 		return nil, err
 	}
 
-	return configFile, nil
+	dsMap := make(map[string]DataSource, len(configFile.DataSources))
+	for _, ds := range configFile.DataSources {
+		dsMap[ds.Name] = ds
+	}
+
+	config_ := Config{
+		Application:     configFile.Application,
+		ClientAPIKeys:   configFile.ClientAPIKeys,
+		ExternalAPIKeys: configFile.ExternalAPIKeys,
+		Database:        configFile.Database,
+		DataSourcesMap:  dsMap,
+	}
+
+	return &config_, nil
 }

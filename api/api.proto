@@ -9,6 +9,8 @@ package api;
 message Empty {
 }
 
+// -------------- User -----------------
+
 message CreateUserRequest {
   int64 Id = 1;
   string UserName = 2;
@@ -38,33 +40,65 @@ message User {
   string LastName = 4;
 }
 
-service UserService {
-  rpc Create(CreateUserRequest) returns (Empty) {
+// -------------- Portfolio -----------------
+
+message Portfolio {
+  int64 Id = 1;
+  int64 UserId = 2;
+  string BaseCurrencyCode = 3;
+  repeated PortfolioItem Items = 4;
+}
+
+message PortfolioItem {
+  int64 Id = 1;
+  int64 PortfolioId = 2;
+  int64 MarketItemId = 3;
+  double Price = 4;
+  double Volume = 5;
+}
+
+message CreatePortfolioRequest {
+  int64 UserId = 1;
+}
+
+// -------------- Market -----------------
+
+
+
+
+service UserPortfolioService {
+  rpc CreateUser(CreateUserRequest) returns (Empty) {
     option (google.api.http) = {
       post: "/v1/users"
       body: "*"
     };
   }
-  rpc Retrieve(RetrieveUserRequest) returns (User) {
+  rpc RetrieveUser(RetrieveUserRequest) returns (User) {
     option (google.api.http) = {
       get: "/v1/users/{Id}"
     };
   }
-  rpc RetrieveOrCreate(CreateUserRequest) returns (User) {
+  rpc RetrieveOrCreateUser(CreateUserRequest) returns (User) {
     option (google.api.http) = {
       post: "/v1/users/{Id}"
       body: "*"
     };
   }
-  rpc Update(UpdateUserRequest) returns (Empty) {
+  rpc UpdateUser(UpdateUserRequest) returns (Empty) {
     option (google.api.http) = {
       put: "/v1/users/{Id}"
       body: "*"
     };
   }
-  rpc Delete(DeleteUserRequest) returns (Empty) {
+  rpc DeleteUser(DeleteUserRequest) returns (Empty) {
     option (google.api.http) = {
       delete: "/v1/users/{Id}"
+    };
+  }
+  rpc RetrieveOrCreatePortfolio(CreatePortfolioRequest) returns (Portfolio) {
+    option (google.api.http) = {
+      post: "/v1/portfolio/{UserId}"
+      body: "*"
     };
   }
 }

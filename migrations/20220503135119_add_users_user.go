@@ -10,7 +10,14 @@ func init() {
 }
 
 func upAddUser(tx *sql.Tx) error {
-	_, err := tx.Exec("CREATE TABLE users (ID bigint PRIMARY KEY, UserName VARCHAR, FirstName VARCHAR, LastName VARCHAR);")
+	_, err := tx.Exec(`
+		CREATE TABLE users_user (
+		    ID bigint PRIMARY KEY,
+		 	UserName VARCHAR(32),
+		 	FirstName VARCHAR(64),
+		 	LastName VARCHAR(64)
+		);
+	`)
 	if err != nil {
 		return err
 	}
@@ -18,7 +25,7 @@ func upAddUser(tx *sql.Tx) error {
 }
 
 func downAddUser(tx *sql.Tx) error {
-	_, err := tx.Exec("DROP TABLE users;")
+	_, err := tx.Exec("DROP TABLE users_user;")
 	if err != nil {
 		return err
 	}

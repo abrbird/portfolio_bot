@@ -2,4 +2,6 @@
 pgadmin
 postgres-data
 
+api/ghz-api.proto
 config/config.yml
+goose

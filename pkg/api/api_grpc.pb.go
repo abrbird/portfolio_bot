@@ -18,230 +18,266 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// UserServiceClient is the client API for UserService service.
+// UserPortfolioServiceClient is the client API for UserPortfolioService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type UserServiceClient interface {
-	Create(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*Empty, error)
-	Retrieve(ctx context.Context, in *RetrieveUserRequest, opts ...grpc.CallOption) (*User, error)
-	RetrieveOrCreate(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error)
-	Update(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*Empty, error)
-	Delete(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*Empty, error)
+type UserPortfolioServiceClient interface {
+	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*Empty, error)
+	RetrieveUser(ctx context.Context, in *RetrieveUserRequest, opts ...grpc.CallOption) (*User, error)
+	RetrieveOrCreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error)
+	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*Empty, error)
+	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*Empty, error)
+	RetrieveOrCreatePortfolio(ctx context.Context, in *CreatePortfolioRequest, opts ...grpc.CallOption) (*Portfolio, error)
 }
 
-type userServiceClient struct {
+type userPortfolioServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
-	return &userServiceClient{cc}
+func NewUserPortfolioServiceClient(cc grpc.ClientConnInterface) UserPortfolioServiceClient {
+	return &userPortfolioServiceClient{cc}
 }
 
-func (c *userServiceClient) Create(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*Empty, error) {
+func (c *userPortfolioServiceClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/api.UserService/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.UserPortfolioService/CreateUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) Retrieve(ctx context.Context, in *RetrieveUserRequest, opts ...grpc.CallOption) (*User, error) {
+func (c *userPortfolioServiceClient) RetrieveUser(ctx context.Context, in *RetrieveUserRequest, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
-	err := c.cc.Invoke(ctx, "/api.UserService/Retrieve", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.UserPortfolioService/RetrieveUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) RetrieveOrCreate(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error) {
+func (c *userPortfolioServiceClient) RetrieveOrCreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error) {
 	out := new(User)
-	err := c.cc.Invoke(ctx, "/api.UserService/RetrieveOrCreate", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.UserPortfolioService/RetrieveOrCreateUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) Update(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*Empty, error) {
+func (c *userPortfolioServiceClient) UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/api.UserService/Update", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.UserPortfolioService/UpdateUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *userServiceClient) Delete(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*Empty, error) {
+func (c *userPortfolioServiceClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/api.UserService/Delete", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api.UserPortfolioService/DeleteUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// UserServiceServer is the server API for UserService service.
-// All implementations must embed UnimplementedUserServiceServer
+func (c *userPortfolioServiceClient) RetrieveOrCreatePortfolio(ctx context.Context, in *CreatePortfolioRequest, opts ...grpc.CallOption) (*Portfolio, error) {
+	out := new(Portfolio)
+	err := c.cc.Invoke(ctx, "/api.UserPortfolioService/RetrieveOrCreatePortfolio", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// UserPortfolioServiceServer is the server API for UserPortfolioService service.
+// All implementations must embed UnimplementedUserPortfolioServiceServer
 // for forward compatibility
-type UserServiceServer interface {
-	Create(context.Context, *CreateUserRequest) (*Empty, error)
-	Retrieve(context.Context, *RetrieveUserRequest) (*User, error)
-	RetrieveOrCreate(context.Context, *CreateUserRequest) (*User, error)
-	Update(context.Context, *UpdateUserRequest) (*Empty, error)
-	Delete(context.Context, *DeleteUserRequest) (*Empty, error)
-	mustEmbedUnimplementedUserServiceServer()
+type UserPortfolioServiceServer interface {
+	CreateUser(context.Context, *CreateUserRequest) (*Empty, error)
+	RetrieveUser(context.Context, *RetrieveUserRequest) (*User, error)
+	RetrieveOrCreateUser(context.Context, *CreateUserRequest) (*User, error)
+	UpdateUser(context.Context, *UpdateUserRequest) (*Empty, error)
+	DeleteUser(context.Context, *DeleteUserRequest) (*Empty, error)
+	RetrieveOrCreatePortfolio(context.Context, *CreatePortfolioRequest) (*Portfolio, error)
+	mustEmbedUnimplementedUserPortfolioServiceServer()
 }
 
-// UnimplementedUserServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedUserServiceServer struct {
+// UnimplementedUserPortfolioServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedUserPortfolioServiceServer struct {
 }
 
-func (UnimplementedUserServiceServer) Create(context.Context, *CreateUserRequest) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+func (UnimplementedUserPortfolioServiceServer) CreateUser(context.Context, *CreateUserRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (UnimplementedUserServiceServer) Retrieve(context.Context, *RetrieveUserRequest) (*User, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Retrieve not implemented")
+func (UnimplementedUserPortfolioServiceServer) RetrieveUser(context.Context, *RetrieveUserRequest) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RetrieveUser not implemented")
 }
-func (UnimplementedUserServiceServer) RetrieveOrCreate(context.Context, *CreateUserRequest) (*User, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RetrieveOrCreate not implemented")
+func (UnimplementedUserPortfolioServiceServer) RetrieveOrCreateUser(context.Context, *CreateUserRequest) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RetrieveOrCreateUser not implemented")
 }
-func (UnimplementedUserServiceServer) Update(context.Context, *UpdateUserRequest) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+func (UnimplementedUserPortfolioServiceServer) UpdateUser(context.Context, *UpdateUserRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
-func (UnimplementedUserServiceServer) Delete(context.Context, *DeleteUserRequest) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+func (UnimplementedUserPortfolioServiceServer) DeleteUser(context.Context, *DeleteUserRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
 }
-func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
+func (UnimplementedUserPortfolioServiceServer) RetrieveOrCreatePortfolio(context.Context, *CreatePortfolioRequest) (*Portfolio, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RetrieveOrCreatePortfolio not implemented")
+}
+func (UnimplementedUserPortfolioServiceServer) mustEmbedUnimplementedUserPortfolioServiceServer() {}
 
-// UnsafeUserServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to UserServiceServer will
+// UnsafeUserPortfolioServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to UserPortfolioServiceServer will
 // result in compilation errors.
-type UnsafeUserServiceServer interface {
-	mustEmbedUnimplementedUserServiceServer()
+type UnsafeUserPortfolioServiceServer interface {
+	mustEmbedUnimplementedUserPortfolioServiceServer()
 }
 
-func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
-	s.RegisterService(&UserService_ServiceDesc, srv)
+func RegisterUserPortfolioServiceServer(s grpc.ServiceRegistrar, srv UserPortfolioServiceServer) {
+	s.RegisterService(&UserPortfolioService_ServiceDesc, srv)
 }
 
-func _UserService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _UserPortfolioService_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).Create(ctx, in)
+		return srv.(UserPortfolioServiceServer).CreateUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.UserService/Create",
+		FullMethod: "/api.UserPortfolioService/CreateUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).Create(ctx, req.(*CreateUserRequest))
+		return srv.(UserPortfolioServiceServer).CreateUser(ctx, req.(*CreateUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_Retrieve_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _UserPortfolioService_RetrieveUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RetrieveUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).Retrieve(ctx, in)
+		return srv.(UserPortfolioServiceServer).RetrieveUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.UserService/Retrieve",
+		FullMethod: "/api.UserPortfolioService/RetrieveUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).Retrieve(ctx, req.(*RetrieveUserRequest))
+		return srv.(UserPortfolioServiceServer).RetrieveUser(ctx, req.(*RetrieveUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_RetrieveOrCreate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _UserPortfolioService_RetrieveOrCreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).RetrieveOrCreate(ctx, in)
+		return srv.(UserPortfolioServiceServer).RetrieveOrCreateUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.UserService/RetrieveOrCreate",
+		FullMethod: "/api.UserPortfolioService/RetrieveOrCreateUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).RetrieveOrCreate(ctx, req.(*CreateUserRequest))
+		return srv.(UserPortfolioServiceServer).RetrieveOrCreateUser(ctx, req.(*CreateUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _UserPortfolioService_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).Update(ctx, in)
+		return srv.(UserPortfolioServiceServer).UpdateUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.UserService/Update",
+		FullMethod: "/api.UserPortfolioService/UpdateUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).Update(ctx, req.(*UpdateUserRequest))
+		return srv.(UserPortfolioServiceServer).UpdateUser(ctx, req.(*UpdateUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _UserPortfolioService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).Delete(ctx, in)
+		return srv.(UserPortfolioServiceServer).DeleteUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.UserService/Delete",
+		FullMethod: "/api.UserPortfolioService/DeleteUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).Delete(ctx, req.(*DeleteUserRequest))
+		return srv.(UserPortfolioServiceServer).DeleteUser(ctx, req.(*DeleteUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
+func _UserPortfolioService_RetrieveOrCreatePortfolio_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreatePortfolioRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserPortfolioServiceServer).RetrieveOrCreatePortfolio(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.UserPortfolioService/RetrieveOrCreatePortfolio",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserPortfolioServiceServer).RetrieveOrCreatePortfolio(ctx, req.(*CreatePortfolioRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// UserPortfolioService_ServiceDesc is the grpc.ServiceDesc for UserPortfolioService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var UserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.UserService",
-	HandlerType: (*UserServiceServer)(nil),
+var UserPortfolioService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "api.UserPortfolioService",
+	HandlerType: (*UserPortfolioServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Create",
-			Handler:    _UserService_Create_Handler,
+			MethodName: "CreateUser",
+			Handler:    _UserPortfolioService_CreateUser_Handler,
 		},
 		{
-			MethodName: "Retrieve",
-			Handler:    _UserService_Retrieve_Handler,
+			MethodName: "RetrieveUser",
+			Handler:    _UserPortfolioService_RetrieveUser_Handler,
 		},
 		{
-			MethodName: "RetrieveOrCreate",
-			Handler:    _UserService_RetrieveOrCreate_Handler,
+			MethodName: "RetrieveOrCreateUser",
+			Handler:    _UserPortfolioService_RetrieveOrCreateUser_Handler,
 		},
 		{
-			MethodName: "Update",
-			Handler:    _UserService_Update_Handler,
+			MethodName: "UpdateUser",
+			Handler:    _UserPortfolioService_UpdateUser_Handler,
 		},
 		{
-			MethodName: "Delete",
-			Handler:    _UserService_Delete_Handler,
+			MethodName: "DeleteUser",
+			Handler:    _UserPortfolioService_DeleteUser_Handler,
+		},
+		{
+			MethodName: "RetrieveOrCreatePortfolio",
+			Handler:    _UserPortfolioService_RetrieveOrCreatePortfolio_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

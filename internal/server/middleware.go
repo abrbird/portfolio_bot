@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"log"
 	"time"
 )
 
@@ -20,13 +21,21 @@ var (
 	ErrorAuth             = status.Errorf(codes.Unauthenticated, "Authorization if failed")
 )
 
+func ErrorLogInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	response, err := handler(ctx, req)
+	if err != nil {
+		log.Println(err)
+	}
+	return response, err
+}
+
 func TimeoutInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
 	return handler(ctxWithTimeout, req)
 }
 
-func AuthInterceptorBuilder(keys config.InternalAPIKeys) func(
+func AuthInterceptorBuilder(keys config.ClientAPIKeys) func(
 	ctx context.Context, req interface{},
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,

@@ -1,39 +1,35 @@
-package client
+package http_client
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
+	"gitlab.ozon.dev/zBlur/homework-2/pkg/api"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
 )
 
-const (
-	DefaultTimeout = 10 * time.Second
-	Url            = "http://app:8090/v1"
-)
-
-type User struct {
-	Id        string `json:"Id"`
-	UserName  string `json:"UserName"`
-	FirstName string `json:"FirstName"`
-	LastName  string `json:"LastName"`
+type Client struct {
+	apiKey  string
+	timeout time.Duration
+	Url     string
 }
 
-type Client struct{}
-
-func New() *Client {
-	return &Client{}
+func New(apiKey string, url string, timeout time.Duration) *Client {
+	return &Client{
+		apiKey:  apiKey,
+		timeout: timeout,
+		Url:     url,
+	}
 }
 
-func (c *Client) GetOrCreateUser(user *domain.User) (*domain.User, error) {
-	cl := http.Client{Timeout: DefaultTimeout}
+func (c *Client) GetOrCreateUser(user *domain.User) (*api.User, error) {
+	cl := http.Client{Timeout: c.timeout}
 
-	urlReq := fmt.Sprintf("%s/users/%d", Url, user.Id)
+	urlReq := fmt.Sprintf("%s/users/%d", c.Url, user.Id)
 	postBody, _ := json.Marshal(map[string]string{
 		"UserName":  user.UserName,
 		"FirstName": user.FirstName,
@@ -44,6 +40,8 @@ func (c *Client) GetOrCreateUser(user *domain.User) (*domain.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Set("Authorization", c.apiKey)
 
 	r, err := cl.Do(req)
 	if err != nil {
@@ -57,24 +55,24 @@ func (c *Client) GetOrCreateUser(user *domain.User) (*domain.User, error) {
 	}
 
 	userData := User{}
-
 	err = json.Unmarshal(b, &userData)
 	if err != nil {
-		log.Print(string(b))
 		return nil, err
 	}
-
 	userId, err := strconv.ParseInt(userData.Id, 10, 64)
 	if err != nil {
-		log.Print(string(b))
 		return nil, err
 	}
 
-	user = &domain.User{
-		Id:        domain.UserId(userId),
+	userApi := api.User{
+		Id:        userId,
 		UserName:  userData.UserName,
 		FirstName: userData.FirstName,
 		LastName:  userData.LastName,
 	}
-	return user, err
+	return &userApi, err
+}
+
+func (c *Client) GetOrCreatePortfolio(userId int64) (*api.Portfolio, error) {
+	return nil, nil
 }
