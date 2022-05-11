@@ -8,6 +8,8 @@ import (
 	"gitlab.ozon.dev/zBlur/homework-2/internal/repository"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/repository/sql_repository"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/server"
+	"gitlab.ozon.dev/zBlur/homework-2/internal/service"
+	"gitlab.ozon.dev/zBlur/homework-2/internal/service/service_impl"
 	"log"
 	"time"
 )
@@ -35,31 +37,23 @@ func GetLastTimeStamps(mis []domain.MarketItem, defaultTimeStamp int64, repo rep
 	return lastTimeStamps
 }
 
-func collect(config_ *config.Config, repo repository.Repository) error {
+func collect(config_ *config.Config, serv service.Service, repo repository.Repository) error {
 	log.Println("running task...")
 
 	baseCurrency := repo.Currency().Retrieve(config_.Application.BaseCurrency)
 	log.Println("base currency: ", baseCurrency.Currency)
 
-	marketItemsTypeCodesMap := make(map[string][]string, 0)
-	for _, mi := range config_.Application.AvailableMarketItems {
-		if _, ok := marketItemsTypeCodesMap[mi.Type]; !ok {
-			marketItemsTypeCodesMap[mi.Type] = make([]string, 0)
-		}
-		marketItemsTypeCodesMap[mi.Type] = append(marketItemsTypeCodesMap[mi.Type], mi.Code)
-	}
+	configMarketItems := config_.Application.GetDomainMarketItems()
+	availableMarketItemsRetrieve := serv.MarketItem().RetrieveMany(configMarketItems, repo.MarketItem())
 
-	availableMarketItems := make([]domain.MarketItem, 0)
-	for type_, codes := range marketItemsTypeCodesMap {
-		marketItemsRetrieve := repo.MarketItem().RetrieveByType(codes, type_)
-		if marketItemsRetrieve.Error != nil {
-			log.Println(marketItemsRetrieve.Error)
-			return marketItemsRetrieve.Error
-		}
-		availableMarketItems = append(availableMarketItems, marketItemsRetrieve.MarketItems...)
+	if availableMarketItemsRetrieve.Error != nil {
+		log.Println(availableMarketItemsRetrieve.Error)
+		return availableMarketItemsRetrieve.Error
 	}
+	availableMarketItems := availableMarketItemsRetrieve.MarketItems
 
-	if yfDataSource, ok := config_.DataSourcesMap[yahoo_finance.ServiceName]; ok && len(availableMarketItems) > 0 {
+	yfDataSource, ok := config_.DataSourcesMap[yahoo_finance.ServiceName]
+	if ok && len(availableMarketItems) > 0 {
 		cl, err := yahoo_finance.New(yfDataSource)
 		if err != nil {
 			log.Println(err)
@@ -67,7 +61,11 @@ func collect(config_ *config.Config, repo repository.Repository) error {
 		}
 
 		now := time.Now()
-		lastTimeStamps := GetLastTimeStamps(availableMarketItems, config_.Application.HistoryStartTimeStamp, repo)
+		lastTimeStamps := GetLastTimeStamps(
+			availableMarketItemsRetrieve.MarketItems,
+			config_.Application.HistoryStartTimeStamp,
+			repo,
+		)
 		minTimeStamp := GetMinTimeStamp(lastTimeStamps, now.Unix())
 
 		rangeYF := yahoo_finance.GetRange(minTimeStamp, now.Unix())
@@ -148,9 +146,10 @@ func main() {
 			log.Fatalf("db connection failed: %v", err)
 		}
 	}()
+	serv := service_impl.New()
 	repo := sql_repository.New(db)
 
-	err = gocron.Every(config_.Application.HistoryInterval).Seconds().From(gocron.NextTick()).Do(collect, config_, repo)
+	err = gocron.Every(config_.Application.HistoryInterval).Seconds().From(gocron.NextTick()).Do(collect, config_, serv, repo)
 	if err != nil {
 		log.Fatal(err)
 	}

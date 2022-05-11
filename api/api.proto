@@ -63,7 +63,33 @@ message CreatePortfolioRequest {
 
 // -------------- Market -----------------
 
+message MarketItem {
+  int64 Id = 1;
+  string Code = 2;
+  string Type = 3;
+  string Title = 4;
+}
 
+message MarketPrice {
+  int64 MarketItemId = 1;
+  double Price = 2;
+  int64 Timestamp = 3;
+}
+
+message MarketItemsResponse {
+  repeated MarketItem MarketItems = 1;
+}
+
+message MarketItemPricesResponse {
+  repeated MarketPrice MarketPrices = 1;
+}
+
+message MarketItemPricesRequest {
+  int64 MarketItemId = 1;
+  int64 StartTimestamp = 2;
+  int64 EndTimestamp = 3;
+  int64 Interval = 4;
+}
 
 
 service UserPortfolioService {
@@ -99,6 +125,19 @@ service UserPortfolioService {
     option (google.api.http) = {
       post: "/v1/portfolio/{UserId}"
       body: "*"
+    };
+  }
+
+  rpc AvailableMarketItems(Empty) returns (MarketItemsResponse) {
+    option (google.api.http) = {
+      get: "/v1/market_items"
+//      body: "*"
+    };
+  }
+  rpc MarketItemsPrices(MarketItemPricesRequest) returns (MarketItemPricesResponse) {
+    option (google.api.http) = {
+      get: "/v1/market_items/{MarketItemId}"
+//      body: "*"
     };
   }
 }

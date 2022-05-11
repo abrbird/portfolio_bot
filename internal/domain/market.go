@@ -1,5 +1,7 @@
 package domain
 
+import pb "gitlab.ozon.dev/zBlur/homework-2/pkg/api"
+
 const MarketItemStockType = "Stock"
 const MarketItemETFType = "ETF"
 const MarketItemCryptoCurrencyType = "CryptoCurrency"
@@ -35,4 +37,29 @@ type MarketPriceRetrieve struct {
 type MarketPricesRetrieve struct {
 	MarketPrices []MarketPrice
 	Error        error
+}
+
+func (mir *MarketItemsRetrieve) GetPBItems() []*pb.MarketItem {
+	mis := make([]*pb.MarketItem, len(mir.MarketItems))
+	for i, item := range mir.MarketItems {
+		mis[i] = &pb.MarketItem{
+			Id:    item.Id,
+			Code:  item.Code,
+			Type:  item.Type,
+			Title: item.Title,
+		}
+	}
+	return mis
+}
+
+func (mpr *MarketPricesRetrieve) GetPBItems() []*pb.MarketPrice {
+	mps := make([]*pb.MarketPrice, len(mpr.MarketPrices))
+	for i, item := range mpr.MarketPrices {
+		mps[i] = &pb.MarketPrice{
+			MarketItemId: item.MarketItemId,
+			Price:        item.Price,
+			Timestamp:    item.Timestamp,
+		}
+	}
+	return mps
 }

@@ -89,3 +89,60 @@ func (c *Client) GetOrCreatePortfolio(userId int64) (*api.Portfolio, error) {
 
 	return portfolioPB, nil
 }
+
+func (c *Client) GetAvailableMarketItems() ([]*api.MarketItem, error) {
+	conn, clnt, ctx, err := c.prepareClientContext()
+	if err != nil {
+		return nil, err
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(conn)
+
+	marketItemsResponse, err := clnt.AvailableMarketItems(
+		ctx,
+		&api.Empty{},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return marketItemsResponse.MarketItems, nil
+}
+
+func (c *Client) GetMarketItemPrices(
+	marketItemId int64,
+	startTimeStamp int64,
+	endTimeStamp int64,
+	interval int64,
+) ([]*api.MarketPrice, error) {
+
+	conn, clnt, ctx, err := c.prepareClientContext()
+	if err != nil {
+		return nil, err
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(conn)
+
+	marketItemPricesResponse, err := clnt.MarketItemsPrices(
+		ctx,
+		&api.MarketItemPricesRequest{
+			MarketItemId:   marketItemId,
+			StartTimestamp: startTimeStamp,
+			EndTimestamp:   endTimeStamp,
+			Interval:       interval,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return marketItemPricesResponse.MarketPrices, nil
+}

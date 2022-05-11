@@ -42,28 +42,6 @@ func runServer(config_ *config.Config) {
 	repository := sql_repository.New(db)
 	service := service_impl.New()
 
-	//startInterval :=
-	//endInterval :=
-	//
-	//intervals := service.MarketPrice().GetIntervals(startInterval, endInterval, )
-	//// 9300 - btc, 4094 - aapl
-	//marketPricesRetrieved := service.MarketPrice().RetrieveInterval(4094, startInterval, endInterval, repository.MarketPrice())
-	//if marketPricesRetrieved.Error != nil {
-	//	log.Fatal(err)
-	//}
-	//marketPrices, blanksCount := service.MarketPrice().FillBlanks(marketPricesRetrieved.MarketPrices, intervals)
-	//
-	//blanksRatio := float64(blanksCount) / float64(len(intervals))
-	//
-	//fmt.Println(blanksRatio)
-	//fmt.Println(intervals[len(intervals)-5:])
-	//fmt.Println(marketPrices[len(marketPrices)-5:])
-
-	//d, err := service.MarketPrice().GetMarketItemPrices(9300, int64(1648771200), time.Now().Unix(), config_.Application.HistoryInterval, repository.MarketPrice())
-	//if err != nil {
-	//
-	//}
-
 	newServer := server.NewServer(
 		*config_,
 		repository,

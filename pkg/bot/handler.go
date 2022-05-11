@@ -6,6 +6,7 @@ import (
 	"gitlab.ozon.dev/zBlur/homework-2/pkg/client"
 	"log"
 	"strings"
+	"time"
 )
 
 type TelegramHandler struct {
@@ -77,6 +78,23 @@ func (h *TelegramHandler) Handle(update tgbotapi.Update) {
 					return
 				}
 				log.Println(portfolioPB)
+
+				availableMarketItems, err := h.clnt.GetAvailableMarketItems()
+				if err != nil {
+					h.SendError(update.Message.Chat.ID, err)
+					return
+				}
+				log.Println(availableMarketItems)
+
+				for _, mi := range availableMarketItems {
+					miPrices, err := h.clnt.GetMarketItemPrices(mi.GetId(), 1648771200, time.Now().Unix(), 86400)
+					if err != nil {
+						h.SendError(update.Message.Chat.ID, err)
+						return
+					}
+					log.Println(miPrices)
+				}
+
 				h.Send(update.Message.Chat.ID, fmt.Sprintf("Hi, %s!", GetUserName(userPB)))
 			}
 		}

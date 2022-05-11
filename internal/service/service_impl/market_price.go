@@ -124,18 +124,18 @@ func (m MarketPriceService) GetMarketItemPrices(
 	endTimeStamp int64,
 	interval int64,
 	repo repository.MarketPriceRepository,
-) ([]domain.MarketPrice, error) {
+) *domain.MarketPricesRetrieve {
 
 	intervals := m.GetIntervals(startTimeStamp, endTimeStamp, interval)
 	marketPricesRetrieved := m.RetrieveInterval(marketItemId, startTimeStamp, endTimeStamp, repo)
 	if marketPricesRetrieved.Error != nil {
-		return nil, marketPricesRetrieved.Error
+		return &domain.MarketPricesRetrieve{MarketPrices: nil, Error: marketPricesRetrieved.Error}
 	}
 	marketPrices, blanksCount := m.FillBlanks(marketPricesRetrieved.MarketPrices, intervals)
 	blanksRatio := float64(blanksCount) / float64(len(intervals))
 	if blanksRatio > 0.6 {
-		return nil, errors.New("empty or not enough data")
+		return &domain.MarketPricesRetrieve{MarketPrices: nil, Error: errors.New("empty or not enough data")}
 	}
 
-	return marketPrices, nil
+	return &domain.MarketPricesRetrieve{MarketPrices: marketPrices, Error: nil}
 }

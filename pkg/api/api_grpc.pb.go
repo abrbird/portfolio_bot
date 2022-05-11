@@ -28,6 +28,8 @@ type UserPortfolioServiceClient interface {
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*Empty, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*Empty, error)
 	RetrieveOrCreatePortfolio(ctx context.Context, in *CreatePortfolioRequest, opts ...grpc.CallOption) (*Portfolio, error)
+	AvailableMarketItems(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*MarketItemsResponse, error)
+	MarketItemsPrices(ctx context.Context, in *MarketItemPricesRequest, opts ...grpc.CallOption) (*MarketItemPricesResponse, error)
 }
 
 type userPortfolioServiceClient struct {
@@ -92,6 +94,24 @@ func (c *userPortfolioServiceClient) RetrieveOrCreatePortfolio(ctx context.Conte
 	return out, nil
 }
 
+func (c *userPortfolioServiceClient) AvailableMarketItems(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*MarketItemsResponse, error) {
+	out := new(MarketItemsResponse)
+	err := c.cc.Invoke(ctx, "/api.UserPortfolioService/AvailableMarketItems", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userPortfolioServiceClient) MarketItemsPrices(ctx context.Context, in *MarketItemPricesRequest, opts ...grpc.CallOption) (*MarketItemPricesResponse, error) {
+	out := new(MarketItemPricesResponse)
+	err := c.cc.Invoke(ctx, "/api.UserPortfolioService/MarketItemsPrices", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserPortfolioServiceServer is the server API for UserPortfolioService service.
 // All implementations must embed UnimplementedUserPortfolioServiceServer
 // for forward compatibility
@@ -102,6 +122,8 @@ type UserPortfolioServiceServer interface {
 	UpdateUser(context.Context, *UpdateUserRequest) (*Empty, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*Empty, error)
 	RetrieveOrCreatePortfolio(context.Context, *CreatePortfolioRequest) (*Portfolio, error)
+	AvailableMarketItems(context.Context, *Empty) (*MarketItemsResponse, error)
+	MarketItemsPrices(context.Context, *MarketItemPricesRequest) (*MarketItemPricesResponse, error)
 	mustEmbedUnimplementedUserPortfolioServiceServer()
 }
 
@@ -126,6 +148,12 @@ func (UnimplementedUserPortfolioServiceServer) DeleteUser(context.Context, *Dele
 }
 func (UnimplementedUserPortfolioServiceServer) RetrieveOrCreatePortfolio(context.Context, *CreatePortfolioRequest) (*Portfolio, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RetrieveOrCreatePortfolio not implemented")
+}
+func (UnimplementedUserPortfolioServiceServer) AvailableMarketItems(context.Context, *Empty) (*MarketItemsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AvailableMarketItems not implemented")
+}
+func (UnimplementedUserPortfolioServiceServer) MarketItemsPrices(context.Context, *MarketItemPricesRequest) (*MarketItemPricesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MarketItemsPrices not implemented")
 }
 func (UnimplementedUserPortfolioServiceServer) mustEmbedUnimplementedUserPortfolioServiceServer() {}
 
@@ -248,6 +276,42 @@ func _UserPortfolioService_RetrieveOrCreatePortfolio_Handler(srv interface{}, ct
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserPortfolioService_AvailableMarketItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserPortfolioServiceServer).AvailableMarketItems(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.UserPortfolioService/AvailableMarketItems",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserPortfolioServiceServer).AvailableMarketItems(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserPortfolioService_MarketItemsPrices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MarketItemPricesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserPortfolioServiceServer).MarketItemsPrices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.UserPortfolioService/MarketItemsPrices",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserPortfolioServiceServer).MarketItemsPrices(ctx, req.(*MarketItemPricesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserPortfolioService_ServiceDesc is the grpc.ServiceDesc for UserPortfolioService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -278,6 +342,14 @@ var UserPortfolioService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RetrieveOrCreatePortfolio",
 			Handler:    _UserPortfolioService_RetrieveOrCreatePortfolio_Handler,
+		},
+		{
+			MethodName: "AvailableMarketItems",
+			Handler:    _UserPortfolioService_AvailableMarketItems_Handler,
+		},
+		{
+			MethodName: "MarketItemsPrices",
+			Handler:    _UserPortfolioService_MarketItemsPrices_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

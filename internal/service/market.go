@@ -13,6 +13,7 @@ type MarketItemService interface {
 	RetrieveById(marketItemId int64, repo repository.MarketItemRepository) domain.MarketItemRetrieve
 	Retrieve(code string, type_ string, repo repository.MarketItemRepository) domain.MarketItemRetrieve
 	RetrieveByType(codes []string, type_ string, repo repository.MarketItemRepository) domain.MarketItemsRetrieve
+	RetrieveMany(marketItems []domain.MarketItem, repo repository.MarketItemRepository) domain.MarketItemsRetrieve
 }
 
 type MarketPriceService interface {
@@ -30,5 +31,5 @@ type MarketPriceService interface {
 		endTimeStamp int64,
 		interval int64,
 		repo repository.MarketPriceRepository,
-	) ([]domain.MarketPrice, error)
+	) *domain.MarketPricesRetrieve
 }
