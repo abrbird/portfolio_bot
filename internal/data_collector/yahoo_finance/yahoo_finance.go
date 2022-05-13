@@ -18,7 +18,11 @@ const ServiceName = "YahooFinance"
 const Interval1M = "1m"
 const Interval5M = "5m"
 const Interval15M = "15m"
+const Interval30M = "30m"
 const Interval1H = "1h"
+const Interval3H = "3h"
+const Interval6H = "6h"
+const Interval12H = "12h"
 const Interval1D = "1d"
 const Interval1WK = "1wk"
 const Interval1MO = "1mo"
@@ -66,8 +70,16 @@ func GetInterval(seconds uint64) (string, error) {
 		return Interval5M, nil
 	case seconds == 60*15:
 		return Interval15M, nil
+	case seconds == 60*30:
+		return Interval30M, nil
 	case seconds == 60*60:
 		return Interval1H, nil
+	case seconds == 60*60*3:
+		return Interval3H, nil
+	case seconds == 60*60*6:
+		return Interval6H, nil
+	case seconds == 60*60*12:
+		return Interval12H, nil
 	case seconds == 60*60*24:
 		return Interval1D, nil
 	case seconds == 60*60*24*7:

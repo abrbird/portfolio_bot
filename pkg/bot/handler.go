@@ -53,7 +53,11 @@ func (h *TelegramHandler) Send(chatId int64, text string) {
 	if err != nil {
 		log.Println(err)
 	}
+}
 
+func (h *TelegramHandler) SendError(chatId int64, err error) {
+	h.Send(chatId, "O-ops, something went wrong")
+	log.Println(err)
 }
 
 func (h *TelegramHandler) Handle(update tgbotapi.Update) {
@@ -87,7 +91,11 @@ func (h *TelegramHandler) Handle(update tgbotapi.Update) {
 				log.Println(availableMarketItems)
 
 				for _, mi := range availableMarketItems {
-					miPrices, err := h.clnt.GetMarketItemPrices(mi.GetId(), 1648771200, time.Now().Unix(), 86400)
+					miPrices, err := h.clnt.GetMarketItemPrices(
+						mi.GetId(),
+						1648771200,
+						time.Now().Unix(),
+						86400)
 					if err != nil {
 						h.SendError(update.Message.Chat.ID, err)
 						return
@@ -99,9 +107,4 @@ func (h *TelegramHandler) Handle(update tgbotapi.Update) {
 			}
 		}
 	}
-}
-
-func (h *TelegramHandler) SendError(chatId int64, err error) {
-	h.Send(chatId, "O-ops, something went wrong")
-	log.Println(err)
 }

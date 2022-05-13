@@ -1,5 +1,7 @@
 package config
 
+import "gitlab.ozon.dev/zBlur/homework-2/internal/domain"
+
 type File struct {
 	Application     Application     `yaml:"application"`
 	ClientAPIKeys   ClientAPIKeys   `yaml:"clientApiKeys"`
@@ -41,4 +43,17 @@ type DataSource struct {
 	Name   string `yaml:"name"`
 	Url    string `yaml:"url"`
 	ApiKey string `yaml:"apiKey"`
+}
+
+func (app *Application) GetDomainMarketItems() []domain.MarketItem {
+
+	configMarketItems := make([]domain.MarketItem, len(app.AvailableMarketItems))
+	for i, item := range app.AvailableMarketItems {
+		configMarketItems[i] = domain.MarketItem{
+			Id:   0,
+			Code: item.Code,
+			Type: item.Type,
+		}
+	}
+	return configMarketItems
 }

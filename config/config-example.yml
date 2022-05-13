@@ -1,12 +1,23 @@
 
-
 application:
-  validateInternal: false  # switch using internalApiKeys validation
+  validateInternal: false
+
+  baseCurrency: "USD"
+  historyStartTimeStamp: 1640995200  # 2022-01-01 00:00:00
+  historyInterval: 3600  # 1 hour
+  availableMarketItems:
+    - code: "AAPL"
+      type: "Stock"
+    - code: "AMZN"
+      type: "Stock"
+    - code: "AAAU"
+      type: "ETF"
+    - code: "BTC"
+      type: "CryptoCurrency"
 
 
-internalApiKeys:
+clientApiKeys:
   anyClient: "random-string-that-clients-will-use-as-APIKey"
-
 
 externalApiKeys:
   telegram: "telegram-bot-APIKey"
@@ -21,6 +32,9 @@ database:
 
 
 dataSources:
-  - name: "CryptoCompare"
-    apiKey: "CryptoCompare-APIKey"
-    url: "https://min-api.cryptocompare.com/data/v2/"
+  - name: "YahooFinance"
+    apiKey: "YahooFinance-ApiKey"
+    url: "https://yfapi.net"
+  - name: "AlphaVantage"
+    apiKey: "AlphaVantage-ApiKey"
+    url: "https://www.alphavantage.co"
