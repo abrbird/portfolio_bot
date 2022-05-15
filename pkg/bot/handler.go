@@ -34,7 +34,7 @@ func New(apiKey string, clnt client.Client, debug bool) *TelegramHandler {
 		apiKey:    apiKey,
 		clnt:      clnt,
 		tgBot:     tgBot,
-		userCache: cache.New(),
+		userCache: cache.New(60 * 5),
 	}
 }
 
@@ -76,7 +76,9 @@ func (h *TelegramHandler) Handle(update tgbotapi.Update) {
 	// TODO: refactor this monster!!!
 
 	if update.Message != nil && update.Message.Chat.IsPrivate() { // handle only private chats
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		if h.tgBot.Debug {
+			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		}
 
 		user := GetUserFromChat(update.Message.Chat)
 		userCache, err := h.GetUserCached(user.Id)
@@ -91,6 +93,12 @@ func (h *TelegramHandler) Handle(update tgbotapi.Update) {
 				User:    userPB,
 				Ts:      time.Now().UTC(),
 				Command: CommandStart,
+			}
+			_, err = h.clnt.GetOrCreatePortfolio(userCache.User.GetId())
+			if err != nil {
+				h.Send(update.Message.Chat.ID, ErrorMessage)
+				log.Println(err)
+				return
 			}
 		}
 

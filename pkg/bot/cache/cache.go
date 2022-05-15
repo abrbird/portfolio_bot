@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
 	"gitlab.ozon.dev/zBlur/homework-2/pkg/api"
-	"math"
 	"strings"
 	"sync"
 	"time"
@@ -13,8 +12,9 @@ import (
 type IO func() error
 
 type Cache struct {
-	data map[domain.UserId]*UserCache
-	m    *sync.RWMutex
+	seconds int64
+	data    map[domain.UserId]*UserCache
+	m       *sync.RWMutex
 }
 
 type UserCache struct {
@@ -28,10 +28,11 @@ type UserCacheRetrieve struct {
 	Error error
 }
 
-func New() *Cache {
+func New(seconds int64) *Cache {
 	return &Cache{
-		data: make(map[domain.UserId]*UserCache),
-		m:    new(sync.RWMutex),
+		seconds: seconds,
+		data:    make(map[domain.UserId]*UserCache),
+		m:       new(sync.RWMutex),
 	}
 }
 
@@ -43,8 +44,8 @@ func (c *Cache) Get(userId domain.UserId) <-chan UserCacheRetrieve {
 		defer c.m.RUnlock()
 
 		if data, ok := c.data[userId]; ok {
-			differenceInMinutes := math.Ceil(time.Now().UTC().Sub(data.Ts.UTC()).Minutes())
-			if differenceInMinutes < 5 {
+			differenceInMinutes := int64(time.Now().UTC().Sub(data.Ts.UTC()).Seconds())
+			if differenceInMinutes < c.seconds {
 				channel <- UserCacheRetrieve{Data: *data, Error: nil}
 			}
 		}
