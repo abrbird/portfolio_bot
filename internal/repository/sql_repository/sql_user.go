@@ -1,6 +1,7 @@
 package sql_repository
 
 import (
+	"context"
 	"database/sql"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
 )
@@ -16,7 +17,7 @@ type SQLUser struct {
 	LastName  sql.NullString
 }
 
-func (r *SQLUserRepository) Create(user *domain.User) error {
+func (r *SQLUserRepository) Create(ctx context.Context, user *domain.User) error {
 
 	const query = `
 		INSERT INTO users_user (
@@ -30,16 +31,21 @@ func (r *SQLUserRepository) Create(user *domain.User) error {
 	  	RETURNING id
 	`
 
-	return r.store.db.QueryRow(
+	err := r.store.db.QueryRowContext(
+		ctx,
 		query,
 		user.Id,
 		user.UserName,
 		user.FirstName,
 		user.LastName,
 	).Scan(&user.Id)
+	if err != nil {
+		return domain.UnknownError
+	}
+	return nil
 }
 
-func (r *SQLUserRepository) Retrieve(userId domain.UserId) domain.UserRetrieve {
+func (r *SQLUserRepository) Retrieve(ctx context.Context, userId domain.UserId) domain.UserRetrieve {
 	const query = `
 		SELECT 
     		id,
@@ -51,7 +57,8 @@ func (r *SQLUserRepository) Retrieve(userId domain.UserId) domain.UserRetrieve {
 	`
 
 	sqlUser := &SQLUser{}
-	if err := r.store.db.QueryRow(
+	if err := r.store.db.QueryRowContext(
+		ctx,
 		query,
 		userId,
 	).Scan(
@@ -60,7 +67,7 @@ func (r *SQLUserRepository) Retrieve(userId domain.UserId) domain.UserRetrieve {
 		&sqlUser.FirstName,
 		&sqlUser.LastName,
 	); err != nil {
-		return domain.UserRetrieve{User: nil, Error: err}
+		return domain.UserRetrieve{User: nil, Error: domain.NotFoundError}
 	}
 	user := &domain.User{
 		Id:        domain.UserId(sqlUser.Id),
@@ -71,7 +78,7 @@ func (r *SQLUserRepository) Retrieve(userId domain.UserId) domain.UserRetrieve {
 	return domain.UserRetrieve{User: user, Error: nil}
 }
 
-func (r *SQLUserRepository) RetrieveOrCreate(user *domain.User) domain.UserRetrieve {
+func (r *SQLUserRepository) RetrieveOrCreate(ctx context.Context, user *domain.User) domain.UserRetrieve {
 	const query = `
 		INSERT INTO users_user (
 			id,
@@ -93,7 +100,8 @@ func (r *SQLUserRepository) RetrieveOrCreate(user *domain.User) domain.UserRetri
 	`
 
 	sqlUser := &SQLUser{}
-	if err := r.store.db.QueryRow(
+	if err := r.store.db.QueryRowContext(
+		ctx,
 		query,
 		user.Id,
 		user.UserName,
@@ -105,7 +113,7 @@ func (r *SQLUserRepository) RetrieveOrCreate(user *domain.User) domain.UserRetri
 		&sqlUser.FirstName,
 		&sqlUser.LastName,
 	); err != nil {
-		return domain.UserRetrieve{User: nil, Error: err}
+		return domain.UserRetrieve{User: nil, Error: domain.UnknownError}
 	}
 	userR := &domain.User{
 		Id:        domain.UserId(sqlUser.Id),
@@ -116,7 +124,7 @@ func (r *SQLUserRepository) RetrieveOrCreate(user *domain.User) domain.UserRetri
 	return domain.UserRetrieve{User: userR, Error: nil}
 }
 
-func (r *SQLUserRepository) Update(user *domain.User) error {
+func (r *SQLUserRepository) Update(ctx context.Context, user *domain.User) error {
 	const query = `
 		UPDATE users_user SET (
 			username,
@@ -128,31 +136,47 @@ func (r *SQLUserRepository) Update(user *domain.User) error {
 		WHERE id = $1
 	`
 
-	err := r.store.db.QueryRow(
+	res, err := r.store.db.ExecContext(
+		ctx,
 		query,
 		user.Id,
 		user.UserName,
 		user.FirstName,
 		user.LastName,
-	).Err()
+	)
 	if err != nil {
-		return err
+		return domain.NotFoundError
+	}
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return domain.NotFoundError
+	}
+	if rows == 0 {
+		return domain.NotFoundError
 	}
 	return nil
 }
 
-func (r *SQLUserRepository) Delete(userId domain.UserId) error {
+func (r *SQLUserRepository) Delete(ctx context.Context, userId domain.UserId) error {
 	const query = `
 		DELETE FROM users_user 
 	    WHERE id = $1
 	`
 
-	err := r.store.db.QueryRow(
+	res, err := r.store.db.ExecContext(
+		ctx,
 		query,
 		userId,
-	).Err()
+	)
 	if err != nil {
-		return err
+		return domain.NotFoundError
+	}
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return domain.NotFoundError
+	}
+	if rows == 0 {
+		return domain.NotFoundError
 	}
 	return nil
 }

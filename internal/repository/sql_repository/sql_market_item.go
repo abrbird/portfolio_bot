@@ -1,6 +1,7 @@
 package sql_repository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
@@ -18,7 +19,7 @@ type SQLMarketItem struct {
 	Title sql.NullString
 }
 
-func (r SQLMarketItemRepository) RetrieveById(marketItemId int64) domain.MarketItemRetrieve {
+func (r SQLMarketItemRepository) RetrieveById(ctx context.Context, marketItemId int64) domain.MarketItemRetrieve {
 	const query = `
 		SELECT 
 		    id,
@@ -30,7 +31,8 @@ func (r SQLMarketItemRepository) RetrieveById(marketItemId int64) domain.MarketI
 	`
 
 	sqlMarketItem := &SQLMarketItem{}
-	if err := r.store.db.QueryRow(
+	if err := r.store.db.QueryRowContext(
+		ctx,
 		query,
 		marketItemId,
 	).Scan(
@@ -39,7 +41,7 @@ func (r SQLMarketItemRepository) RetrieveById(marketItemId int64) domain.MarketI
 		&sqlMarketItem.Type,
 		&sqlMarketItem.Title,
 	); err != nil {
-		return domain.MarketItemRetrieve{MarketItem: nil, Error: err}
+		return domain.MarketItemRetrieve{MarketItem: nil, Error: domain.NotFoundError}
 	}
 	marketItem := &domain.MarketItem{
 		Id:    sqlMarketItem.Id,
@@ -50,7 +52,7 @@ func (r SQLMarketItemRepository) RetrieveById(marketItemId int64) domain.MarketI
 	return domain.MarketItemRetrieve{MarketItem: marketItem, Error: nil}
 }
 
-func (r SQLMarketItemRepository) Retrieve(code string, type_ string) domain.MarketItemRetrieve {
+func (r SQLMarketItemRepository) Retrieve(ctx context.Context, code string, type_ string) domain.MarketItemRetrieve {
 	const query = `
 		SELECT 
 		    id,
@@ -62,7 +64,8 @@ func (r SQLMarketItemRepository) Retrieve(code string, type_ string) domain.Mark
 	`
 
 	sqlMarketItem := &SQLMarketItem{}
-	if err := r.store.db.QueryRow(
+	if err := r.store.db.QueryRowContext(
+		ctx,
 		query,
 		code,
 		type_,
@@ -72,7 +75,7 @@ func (r SQLMarketItemRepository) Retrieve(code string, type_ string) domain.Mark
 		&sqlMarketItem.Type,
 		&sqlMarketItem.Title,
 	); err != nil {
-		return domain.MarketItemRetrieve{MarketItem: nil, Error: err}
+		return domain.MarketItemRetrieve{MarketItem: nil, Error: domain.NotFoundError}
 	}
 	marketItem := &domain.MarketItem{
 		Id:    sqlMarketItem.Id,
@@ -83,7 +86,7 @@ func (r SQLMarketItemRepository) Retrieve(code string, type_ string) domain.Mark
 	return domain.MarketItemRetrieve{MarketItem: marketItem, Error: nil}
 }
 
-func (r SQLMarketItemRepository) RetrieveByType(codes []string, type_ string) *domain.MarketItemsRetrieve {
+func (r SQLMarketItemRepository) RetrieveByType(ctx context.Context, codes []string, type_ string) *domain.MarketItemsRetrieve {
 
 	var placeholders []string
 	var values []interface{}
@@ -110,24 +113,24 @@ func (r SQLMarketItemRepository) RetrieveByType(codes []string, type_ string) *d
 	)
 
 	items := make([]domain.MarketItem, 0)
-	rows, err := r.store.db.Query(
+	rows, err := r.store.db.QueryContext(
+		ctx,
 		query,
 		values...,
 	)
 	if err != nil {
-		return &domain.MarketItemsRetrieve{MarketItems: nil, Error: err}
+		return &domain.MarketItemsRetrieve{MarketItems: nil, Error: domain.NotFoundError}
 	}
 
 	for rows.Next() {
 		var sqlMarketItem SQLMarketItem
-
 		if err := rows.Scan(
 			&sqlMarketItem.Id,
 			&sqlMarketItem.Code,
 			&sqlMarketItem.Type,
 			&sqlMarketItem.Title,
 		); err != nil {
-			return &domain.MarketItemsRetrieve{MarketItems: nil, Error: err}
+			return &domain.MarketItemsRetrieve{MarketItems: nil, Error: domain.NotFoundError}
 		}
 		items = append(
 			items,

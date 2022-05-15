@@ -1,8 +1,12 @@
 package sql_repository
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
+	"github.com/pkg/errors"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
+	"strings"
 )
 
 type SQLMarketPriceRepository struct {
@@ -15,7 +19,9 @@ type SQLMarketPrice struct {
 	Timestamp    sql.NullTime
 }
 
-func (r SQLMarketPriceRepository) RetrieveLast(marketItemId int64) domain.MarketPriceRetrieve {
+const MarketPriceFieldsNum = 3
+
+func (r SQLMarketPriceRepository) RetrieveLast(ctx context.Context, marketItemId int64) domain.MarketPriceRetrieve {
 	const query = `
 		SELECT 
     		market_item_id,
@@ -26,7 +32,8 @@ func (r SQLMarketPriceRepository) RetrieveLast(marketItemId int64) domain.Market
 	`
 
 	sqlMarketPrice := &SQLMarketPrice{}
-	if err := r.store.db.QueryRow(
+	if err := r.store.db.QueryRowContext(
+		ctx,
 		query,
 		marketItemId,
 	).Scan(
@@ -34,7 +41,7 @@ func (r SQLMarketPriceRepository) RetrieveLast(marketItemId int64) domain.Market
 		&sqlMarketPrice.Price,
 		&sqlMarketPrice.Timestamp,
 	); err != nil {
-		return domain.MarketPriceRetrieve{MarketPrice: nil, Error: err}
+		return domain.MarketPriceRetrieve{MarketPrice: nil, Error: domain.NotFoundError}
 	}
 	marketPrice := &domain.MarketPrice{
 		MarketItemId: sqlMarketPrice.MarketItemId,
@@ -45,11 +52,11 @@ func (r SQLMarketPriceRepository) RetrieveLast(marketItemId int64) domain.Market
 }
 
 func (r SQLMarketPriceRepository) RetrieveInterval(
+	ctx context.Context,
 	marketItemId int64,
 	start int64,
 	end int64,
 ) *domain.MarketPricesRetrieve {
-
 	const query = `
 		SELECT 
     		market_item_id,
@@ -60,14 +67,15 @@ func (r SQLMarketPriceRepository) RetrieveInterval(
 	`
 
 	prices := make([]domain.MarketPrice, 0)
-	rows, err := r.store.db.Query(
+	rows, err := r.store.db.QueryContext(
+		ctx,
 		query,
 		marketItemId,
 		start,
 		end,
 	)
 	if err != nil {
-		return &domain.MarketPricesRetrieve{MarketPrices: nil, Error: err}
+		return &domain.MarketPricesRetrieve{MarketPrices: nil, Error: domain.NotFoundError}
 	}
 
 	for rows.Next() {
@@ -78,7 +86,7 @@ func (r SQLMarketPriceRepository) RetrieveInterval(
 			&sqlMarketPrice.Price,
 			&sqlMarketPrice.Timestamp,
 		); err != nil {
-			return &domain.MarketPricesRetrieve{MarketPrices: nil, Error: err}
+			return &domain.MarketPricesRetrieve{MarketPrices: nil, Error: domain.UnknownError}
 		}
 		prices = append(
 			prices,
@@ -92,7 +100,7 @@ func (r SQLMarketPriceRepository) RetrieveInterval(
 	return &domain.MarketPricesRetrieve{MarketPrices: prices, Error: err}
 }
 
-func (r SQLMarketPriceRepository) Create(marketPrice *domain.MarketPrice) error {
+func (r SQLMarketPriceRepository) Create(ctx context.Context, marketPrice *domain.MarketPrice) (bool, error) {
 	const query = `
 		INSERT INTO market_price (
 			market_item_id, 
@@ -102,24 +110,56 @@ func (r SQLMarketPriceRepository) Create(marketPrice *domain.MarketPrice) error 
 			$1, $2, to_timestamp($3)
 	  	)
 	  	ON CONFLICT ON CONSTRAINT market_price_market_item_id_ts_key
-		DO UPDATE SET (
-			market_item_id,
-			ts
-		) = (
-			$1, to_timestamp($3)
-		) WHERE market_price.market_item_id = $1 AND market_price.ts = to_timestamp($3)
-		RETURNING market_item_id, price, ts;
+		DO NOTHING;
 	`
 
-	var sqlMarketPrice SQLMarketPrice
-	return r.store.db.QueryRow(
+	_, err := r.store.db.ExecContext(
+		ctx,
 		query,
 		marketPrice.MarketItemId,
 		marketPrice.Price,
 		marketPrice.Timestamp,
-	).Scan(
-		&sqlMarketPrice.MarketItemId,
-		&sqlMarketPrice.Price,
-		&sqlMarketPrice.Timestamp,
 	)
+	if err != nil {
+		return false, domain.UnknownError
+	}
+	return true, nil
+}
+
+func (r SQLMarketPriceRepository) BulkCreate(ctx context.Context, marketPrices *[]domain.MarketPrice) (int64, error) {
+	var placeholders []string
+	var values []interface{}
+
+	for _, marketPrice := range *marketPrices {
+		placeholders = append(
+			placeholders,
+			fmt.Sprintf("($%d,$%d,to_timestamp($%d))",
+				len(placeholders)*MarketPriceFieldsNum+1,
+				len(placeholders)*MarketPriceFieldsNum+2,
+				len(placeholders)*MarketPriceFieldsNum+3,
+			),
+		)
+		values = append(values, marketPrice.MarketItemId, marketPrice.Price, marketPrice.Timestamp)
+	}
+
+	insertQuery := fmt.Sprintf(`
+		INSERT INTO market_price (
+			market_item_id,
+			price,
+			ts
+		) VALUES %s
+		ON CONFLICT ON CONSTRAINT market_price_market_item_id_ts_key DO NOTHING;
+		`,
+		strings.Join(placeholders, ","),
+	)
+	res, err := r.store.db.ExecContext(ctx, insertQuery, values...)
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to insert multiple records at once")
+	}
+	rowsInserted, err := res.RowsAffected()
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to insert multiple records at once")
+	}
+
+	return rowsInserted, nil
 }

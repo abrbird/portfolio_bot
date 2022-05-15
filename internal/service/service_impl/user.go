@@ -1,83 +1,29 @@
 package service_impl
 
 import (
+	"context"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/repository"
 )
 
 type UserService struct{}
 
-//func (us UserService) Create(user *domain.User, repo repository.UserRepository) <-chan error {
-//	channel := make(chan error)
-//
-//	go func() {
-//		channel <- repo.Create(user)
-//		close(channel)
-//	}()
-//
-//	return channel
-//}
-//
-//func (us UserService) Retrieve(userId domain.UserId, repo repository.UserRepository) <-chan domain.UserRetrieve {
-//	channel := make(chan domain.UserRetrieve)
-//
-//	go func() {
-//		channel <- repo.Retrieve(userId)
-//		close(channel)
-//	}()
-//
-//	return channel
-//}
-//
-//func (us UserService) RetrieveOrCreate(user *domain.User, repo repository.UserRepository) <-chan domain.UserRetrieve {
-//	channel := make(chan domain.UserRetrieve)
-//
-//	go func() {
-//		channel <- repo.RetrieveOrCreate(user)
-//		close(channel)
-//	}()
-//
-//	return channel
-//}
-//
-//func (us UserService) Update(user *domain.User, repo repository.UserRepository) <-chan error {
-//	channel := make(chan error)
-//
-//	go func() {
-//		channel <- repo.Update(user)
-//		close(channel)
-//	}()
-//
-//	return channel
-//}
-//
-//func (us UserService) Delete(userId domain.UserId, repo repository.UserRepository) <-chan error {
-//	channel := make(chan error)
-//
-//	go func() {
-//		channel <- repo.Delete(userId)
-//		close(channel)
-//	}()
-//
-//	return channel
-//}
-
-func (us UserService) Create(user *domain.User, repo repository.UserRepository) error {
-	return repo.Create(user)
+func (us UserService) Create(ctx context.Context, user *domain.User, repo repository.UserRepository) error {
+	return repo.Create(ctx, user)
 }
 
-func (us UserService) Retrieve(userId domain.UserId, repo repository.UserRepository) domain.UserRetrieve {
-	return repo.Retrieve(userId)
+func (us UserService) Retrieve(ctx context.Context, userId domain.UserId, repo repository.UserRepository) domain.UserRetrieve {
+	return repo.Retrieve(ctx, userId)
 }
 
-func (us UserService) RetrieveOrCreate(user *domain.User, repo repository.UserRepository) domain.UserRetrieve {
-	return repo.RetrieveOrCreate(user)
+func (us UserService) RetrieveOrCreate(ctx context.Context, user *domain.User, repo repository.UserRepository) domain.UserRetrieve {
+	return repo.RetrieveOrCreate(ctx, user)
 }
 
-func (us UserService) Update(user *domain.User, repo repository.UserRepository) error {
-	return repo.Update(user)
+func (us UserService) Update(ctx context.Context, user *domain.User, repo repository.UserRepository) error {
+	return repo.Update(ctx, user)
 }
 
-func (us UserService) Delete(userId domain.UserId, repo repository.UserRepository) error {
-	return repo.Delete(userId)
+func (us UserService) Delete(ctx context.Context, userId domain.UserId, repo repository.UserRepository) error {
+	return repo.Delete(ctx, userId)
 }

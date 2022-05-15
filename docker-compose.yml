@@ -15,40 +15,34 @@ services:
     ports:
       - "5432:5432"
 
-  pgadmin:
-    container_name: pgadmin_container
-    image: dpage/pgadmin4:5.7
-    restart: always
-    user: root
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=example@mail.com
-      - PGADMIN_DEFAULT_PASSWORD=postgres
-    volumes:
-      - ./pgadmin:/data
-    ports:
-      - "5050:80"
+  db_migrations:
+    container_name: db_migrations
+    build: ./
+    command: /bin/sh -c "/usr/local/bin/goose postgres up -dir ./migrations"
     depends_on:
       - db
 
   app:
     container_name: app
-    build: ./  # uses Dockerfile
-    command: /bin/sh -c "/usr/local/bin/app"  # TODO: add migrations (goose up)
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=homework_2
+    build: ./
+    command: /bin/sh -c "/usr/local/bin/app"
     depends_on:
       - db
+      - db_migrations
     ports:
       - "8080:8080"  # grpc
       - "8090:8090"  # grpc-gateway
 
+  data_collector:
+    container_name: data_collector
+    build: ./
+    command: /bin/sh -c "/usr/local/bin/data_collector"
+    depends_on:
+      - db
+
   telegram_bot:
     container_name: telegram_bot
-    build: ./  # uses Dockerfile
+    build: ./
     command: /bin/sh -c "/usr/local/bin/telegram_bot"
     depends_on:
       - db

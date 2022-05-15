@@ -1,31 +1,26 @@
 package service
 
 import (
+	"context"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/repository"
 )
 
 type MarketItemService interface {
-	//RetrieveById(marketItemId int64, repo repository.MarketItemRepository) <-chan domain.MarketItemRetrieve
-	//Retrieve(code string, type_ string, repo repository.MarketItemRepository) <-chan domain.MarketItemRetrieve
-	//RetrieveByType(codes []string, type_ string, repo repository.MarketItemRepository) <-chan domain.MarketItemsRetrieve
-
-	RetrieveById(marketItemId int64, repo repository.MarketItemRepository) domain.MarketItemRetrieve
-	Retrieve(code string, type_ string, repo repository.MarketItemRepository) domain.MarketItemRetrieve
-	RetrieveByType(codes []string, type_ string, repo repository.MarketItemRepository) domain.MarketItemsRetrieve
-	RetrieveMany(marketItems []domain.MarketItem, repo repository.MarketItemRepository) domain.MarketItemsRetrieve
+	RetrieveById(ctx context.Context, marketItemId int64, repo repository.MarketItemRepository) domain.MarketItemRetrieve
+	Retrieve(ctx context.Context, code string, type_ string, repo repository.MarketItemRepository) domain.MarketItemRetrieve
+	RetrieveByType(ctx context.Context, codes []string, type_ string, repo repository.MarketItemRepository) domain.MarketItemsRetrieve
+	RetrieveMany(ctx context.Context, marketItems []domain.MarketItem, repo repository.MarketItemRepository) domain.MarketItemsRetrieve
 }
 
 type MarketPriceService interface {
-	//RetrieveInterval(marketItemId int64, start int64, end int64, repo repository.MarketPriceRepository) <-chan domain.MarketPricesRetrieve
-	//Create(marketPrice *domain.MarketPrice, repo repository.MarketPriceRepository) <-chan error
-
-	RetrieveInterval(marketItemId int64, start int64, end int64, repo repository.MarketPriceRepository) domain.MarketPricesRetrieve
-	Create(marketPrice *domain.MarketPrice, repo repository.MarketPriceRepository) error
-
-	GetIntervals(startTimeStamp int64, endTimeStamp int64, interval int64) []int64
-	FillBlanks(marketPrices []domain.MarketPrice, intervals []int64) ([]domain.MarketPrice, int)
-	GetMarketItemPrices(
+	Create(ctx context.Context, marketPrice *domain.MarketPrice, repo repository.MarketPriceRepository) (bool, error)
+	BulkCreate(ctx context.Context, marketPrices *[]domain.MarketPrice, repo repository.MarketPriceRepository) (int64, error)
+	RetrieveInterval(ctx context.Context, marketItemId int64, start int64, end int64, repo repository.MarketPriceRepository) *domain.MarketPricesRetrieve
+	RetrieveLast(ctx context.Context, marketItemIds []int64, repo repository.MarketPriceRepository) *domain.MarketPricesRetrieve
+	FillBlanks(ctx context.Context, marketPrices []domain.MarketPrice, intervals []int64) ([]domain.MarketPrice, int)
+	RetrieveMarketItemPrices(
+		ctx context.Context,
 		marketItemId int64,
 		startTimeStamp int64,
 		endTimeStamp int64,

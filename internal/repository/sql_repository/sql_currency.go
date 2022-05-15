@@ -1,6 +1,7 @@
 package sql_repository
 
 import (
+	"context"
 	"database/sql"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
 )
@@ -15,7 +16,7 @@ type SQLCurrency struct {
 	Title sql.NullString
 }
 
-func (r SQLCurrencyRepository) Retrieve(currencyCode string) domain.CurrencyRetrieve {
+func (r SQLCurrencyRepository) Retrieve(ctx context.Context, currencyCode string) domain.CurrencyRetrieve {
 	const query = `
 		SELECT 
     		code,
@@ -26,7 +27,8 @@ func (r SQLCurrencyRepository) Retrieve(currencyCode string) domain.CurrencyRetr
 	`
 
 	sqlCurrency := &SQLCurrency{}
-	if err := r.store.db.QueryRow(
+	if err := r.store.db.QueryRowContext(
+		ctx,
 		query,
 		currencyCode,
 	).Scan(
@@ -34,7 +36,7 @@ func (r SQLCurrencyRepository) Retrieve(currencyCode string) domain.CurrencyRetr
 		&sqlCurrency.Type,
 		&sqlCurrency.Title,
 	); err != nil {
-		return domain.CurrencyRetrieve{Currency: nil, Error: err}
+		return domain.CurrencyRetrieve{Currency: nil, Error: domain.NotFoundError}
 	}
 	currency := &domain.Currency{
 		Code:  sqlCurrency.Code,

@@ -3,10 +3,12 @@ package service_impl
 import "gitlab.ozon.dev/zBlur/homework-2/internal/service"
 
 type Service struct {
-	userService        *UserService
-	currencyService    *CurrencyService
-	marketItemService  *MarketItemService
-	marketPriceService *MarketPriceService
+	userService          *UserService
+	currencyService      *CurrencyService
+	portfolioService     *PortfolioService
+	portfolioItemService *PortfolioItemService
+	marketItemService    *MarketItemService
+	marketPriceService   *MarketPriceService
 }
 
 func New() *Service {
@@ -51,4 +53,24 @@ func (s *Service) MarketPrice() service.MarketPriceService {
 	s.marketPriceService = &MarketPriceService{}
 
 	return s.marketPriceService
+}
+
+func (s *Service) Portfolio() service.PortfolioService {
+	if s.portfolioService != nil {
+		return s.portfolioService
+	}
+
+	s.portfolioService = &PortfolioService{}
+
+	return s.portfolioService
+}
+
+func (s *Service) PortfolioItem() service.PortfolioItemService {
+	if s.portfolioItemService != nil {
+		return s.portfolioItemService
+	}
+
+	s.portfolioItemService = &PortfolioItemService{}
+
+	return s.portfolioItemService
 }

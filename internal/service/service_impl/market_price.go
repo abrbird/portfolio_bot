@@ -1,52 +1,60 @@
 package service_impl
 
 import (
+	"context"
 	"errors"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/repository"
-	"math"
+	"gitlab.ozon.dev/zBlur/homework-2/internal/service"
 )
 
 type MarketPriceService struct{}
 
-//func (m MarketPriceService) RetrieveInterval(marketItemId int64, start int64, end int64, repo repository.MarketPriceRepository) <-chan domain.MarketPricesRetrieve {
-//	channel := make(chan domain.MarketPricesRetrieve)
-//
-//	go func() {
-//		channel <- *repo.RetrieveInterval(marketItemId, start, end)
-//		close(channel)
-//	}()
-//
-//	return channel
-//}
-//
-//func (m MarketPriceService) Create(marketPrice *domain.MarketPrice, repo repository.MarketPriceRepository) <-chan error {
-//	channel := make(chan error)
-//
-//	go func() {
-//		channel <- repo.Create(marketPrice)
-//		close(channel)
-//	}()
-//
-//	return channel
-//}
+const BatchSize = 10000
+const BlanksRatioError = 0.6
 
-func absInt64(a int64) int64 {
-	if a >= 0 {
-		return a
+func (m MarketPriceService) RetrieveInterval(ctx context.Context, marketItemId int64, start int64, end int64, repo repository.MarketPriceRepository) *domain.MarketPricesRetrieve {
+	return repo.RetrieveInterval(ctx, marketItemId, start, end)
+}
+
+func (m MarketPriceService) RetrieveLast(ctx context.Context, marketItemIds []int64, repo repository.MarketPriceRepository) *domain.MarketPricesRetrieve {
+	lastMarketPrices := make([]domain.MarketPrice, 0)
+	for _, miId := range marketItemIds {
+		lastMarketPriceRetrieved := repo.RetrieveLast(ctx, miId)
+		if lastMarketPriceRetrieved.Error == nil && lastMarketPriceRetrieved.MarketPrice != nil {
+			lastMarketPrices = append(lastMarketPrices, *lastMarketPriceRetrieved.MarketPrice)
+		}
 	}
-	return -a
+	marketPricesRetrieve := domain.MarketPricesRetrieve{
+		MarketPrices: lastMarketPrices,
+		Error:        nil,
+	}
+	return &marketPricesRetrieve
 }
 
-func (m MarketPriceService) RetrieveInterval(marketItemId int64, start int64, end int64, repo repository.MarketPriceRepository) domain.MarketPricesRetrieve {
-	return *repo.RetrieveInterval(marketItemId, start, end)
+func (m MarketPriceService) Create(ctx context.Context, marketPrice *domain.MarketPrice, repo repository.MarketPriceRepository) (bool, error) {
+	return repo.Create(ctx, marketPrice)
 }
 
-func (m MarketPriceService) Create(marketPrice *domain.MarketPrice, repo repository.MarketPriceRepository) error {
-	return repo.Create(marketPrice)
+func (m MarketPriceService) BulkCreate(ctx context.Context, marketPrices *[]domain.MarketPrice, repo repository.MarketPriceRepository) (int64, error) {
+	batchSize := BatchSize
+	wholeSize := len(*marketPrices)
+	createdRows := int64(0)
+
+	for i := 0; wholeSize > 0; i++ {
+		batch := (*marketPrices)[i*batchSize : i*batchSize+service.MinInt(batchSize, wholeSize)]
+		rows, err := repo.BulkCreate(ctx, &batch)
+		if err != nil {
+			return createdRows, err
+		}
+		wholeSize -= batchSize
+		createdRows += rows
+	}
+
+	return createdRows, nil
 }
 
-func (m MarketPriceService) FillBlanks(marketPrices []domain.MarketPrice, intervals []int64) ([]domain.MarketPrice, int) {
+func (m MarketPriceService) FillBlanks(ctx context.Context, marketPrices []domain.MarketPrice, intervals []int64) ([]domain.MarketPrice, int) {
 	resultMarketPrices := make([]domain.MarketPrice, len(intervals))
 	indexesUsed := make([]int, 0)
 
@@ -55,11 +63,11 @@ func (m MarketPriceService) FillBlanks(marketPrices []domain.MarketPrice, interv
 		endTS := &intervals[currentIndex]
 
 		currentMinIndex := 0
-		currentMinDiff := absInt64(marketPrices[currentMinIndex].Timestamp - *endTS)
+		currentMinDiff := service.AbsInt64(marketPrices[currentMinIndex].Timestamp - *endTS)
 		currentMPIndex := currentMinIndex
 
 		for currentIndex < len(intervals) && currentMPIndex < len(marketPrices) {
-			currentDiff := absInt64(marketPrices[currentMPIndex].Timestamp - *endTS)
+			currentDiff := service.AbsInt64(marketPrices[currentMPIndex].Timestamp - *endTS)
 			if currentMinDiff < currentDiff {
 				resultMarketPrices[currentIndex] = domain.MarketPrice{
 					MarketItemId: marketPrices[currentMinIndex].MarketItemId,
@@ -67,16 +75,10 @@ func (m MarketPriceService) FillBlanks(marketPrices []domain.MarketPrice, interv
 					Timestamp:    *endTS,
 				}
 
-				//fmt.Println(
-				//	time.Unix(resultMarketPrices[currentIndex].Timestamp, 0),
-				//	time.Unix(marketPrices[currentMinIndex].Timestamp, 0),
-				//	resultMarketPrices[currentIndex].Price,
-				//)
-
 				currentIndex++
 				if currentIndex < len(intervals) {
 					endTS = &intervals[currentIndex]
-					currentMinDiff = absInt64(marketPrices[currentMinIndex].Timestamp - *endTS)
+					currentMinDiff = service.AbsInt64(marketPrices[currentMinIndex].Timestamp - *endTS)
 				}
 				if len(indexesUsed) == 0 || currentMinIndex != indexesUsed[len(indexesUsed)-1] {
 					indexesUsed = append(indexesUsed, currentMinIndex)
@@ -103,37 +105,23 @@ func (m MarketPriceService) FillBlanks(marketPrices []domain.MarketPrice, interv
 	return resultMarketPrices, blanksCount
 }
 
-func (m MarketPriceService) GetIntervals(startTimeStamp int64, endTimeStamp int64, interval int64) []int64 {
-	intervalsCount := int64(0)
-	difference := endTimeStamp - startTimeStamp
-	if difference > 0 {
-		intervalsCount = int64(math.Ceil(float64(difference) / float64(interval)))
-	}
-
-	intervals := make([]int64, intervalsCount)
-	for i := int64(0); i < intervalsCount; i++ {
-		intervals[i] = startTimeStamp + i*interval
-	}
-
-	return intervals
-}
-
-func (m MarketPriceService) GetMarketItemPrices(
+func (m MarketPriceService) RetrieveMarketItemPrices(
+	ctx context.Context,
 	marketItemId int64,
 	startTimeStamp int64,
 	endTimeStamp int64,
 	interval int64,
 	repo repository.MarketPriceRepository,
 ) *domain.MarketPricesRetrieve {
-
-	intervals := m.GetIntervals(startTimeStamp, endTimeStamp, interval)
-	marketPricesRetrieved := m.RetrieveInterval(marketItemId, startTimeStamp, endTimeStamp, repo)
+	intervals := service.GetIntervals(startTimeStamp, endTimeStamp, interval)
+	marketPricesRetrieved := m.RetrieveInterval(ctx, marketItemId, startTimeStamp, endTimeStamp, repo)
 	if marketPricesRetrieved.Error != nil {
 		return &domain.MarketPricesRetrieve{MarketPrices: nil, Error: marketPricesRetrieved.Error}
 	}
-	marketPrices, blanksCount := m.FillBlanks(marketPricesRetrieved.MarketPrices, intervals)
+	marketPrices, blanksCount := m.FillBlanks(ctx, marketPricesRetrieved.MarketPrices, intervals)
 	blanksRatio := float64(blanksCount) / float64(len(intervals))
-	if blanksRatio > 0.6 {
+
+	if blanksRatio > BlanksRatioError {
 		return &domain.MarketPricesRetrieve{MarketPrices: nil, Error: errors.New("empty or not enough data")}
 	}
 

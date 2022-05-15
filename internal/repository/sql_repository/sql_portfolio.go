@@ -1,6 +1,9 @@
 package sql_repository
 
-import "gitlab.ozon.dev/zBlur/homework-2/internal/domain"
+import (
+	"context"
+	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
+)
 
 //portfolioItemRepository *SQLPortfolioItemRepository
 
@@ -14,7 +17,7 @@ type SQLPortfolio struct {
 	BaseCurrencyCode string
 }
 
-func (r SQLPortfolioRepository) Retrieve(userId domain.UserId) domain.PortfolioRetrieve {
+func (r SQLPortfolioRepository) Retrieve(ctx context.Context, userId domain.UserId) domain.PortfolioRetrieve {
 	const query = `
 		SELECT 
 			id,
@@ -25,7 +28,8 @@ func (r SQLPortfolioRepository) Retrieve(userId domain.UserId) domain.PortfolioR
 	`
 
 	sqlPortfolio := &SQLPortfolio{}
-	if err := r.store.db.QueryRow(
+	if err := r.store.db.QueryRowContext(
+		ctx,
 		query,
 		userId,
 	).Scan(
@@ -33,7 +37,7 @@ func (r SQLPortfolioRepository) Retrieve(userId domain.UserId) domain.PortfolioR
 		&sqlPortfolio.UserId,
 		&sqlPortfolio.BaseCurrencyCode,
 	); err != nil {
-		return domain.PortfolioRetrieve{Portfolio: nil, Error: err}
+		return domain.PortfolioRetrieve{Portfolio: nil, Error: domain.NotFoundError}
 	}
 	portfolio := &domain.Portfolio{
 		Id:               sqlPortfolio.Id,
@@ -43,7 +47,7 @@ func (r SQLPortfolioRepository) Retrieve(userId domain.UserId) domain.PortfolioR
 	return domain.PortfolioRetrieve{Portfolio: portfolio, Error: nil}
 }
 
-func (r SQLPortfolioRepository) RetrieveOrCreate(portfolioData domain.PortfolioCreate) domain.PortfolioRetrieve {
+func (r SQLPortfolioRepository) RetrieveOrCreate(ctx context.Context, portfolioData domain.PortfolioCreate) domain.PortfolioRetrieve {
 	const query = `
 		INSERT INTO portfolios_portfolio (
 			userid,
@@ -62,7 +66,8 @@ func (r SQLPortfolioRepository) RetrieveOrCreate(portfolioData domain.PortfolioC
 	`
 
 	sqlPortfolio := &SQLPortfolio{}
-	if err := r.store.db.QueryRow(
+	if err := r.store.db.QueryRowContext(
+		ctx,
 		query,
 		portfolioData.UserId,
 		portfolioData.BaseCurrencyCode,
@@ -71,7 +76,7 @@ func (r SQLPortfolioRepository) RetrieveOrCreate(portfolioData domain.PortfolioC
 		&sqlPortfolio.UserId,
 		&sqlPortfolio.BaseCurrencyCode,
 	); err != nil {
-		return domain.PortfolioRetrieve{Portfolio: nil, Error: err}
+		return domain.PortfolioRetrieve{Portfolio: nil, Error: domain.UnknownError}
 	}
 	portfolio := &domain.Portfolio{
 		Id:               sqlPortfolio.Id,

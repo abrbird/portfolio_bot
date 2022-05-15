@@ -61,6 +61,17 @@ message CreatePortfolioRequest {
   int64 UserId = 1;
 }
 
+message CreatePortfolioItemRequest {
+  int64 PortfolioId = 1;
+  int64 MarketItemId = 2;
+  double Price = 4;
+  double Volume = 5;
+}
+
+message DeletePortfolioItemRequest {
+  int64 Id = 1;
+}
+
 // -------------- Market -----------------
 
 message MarketItem {
@@ -89,6 +100,10 @@ message MarketItemPricesRequest {
   int64 StartTimestamp = 2;
   int64 EndTimestamp = 3;
   int64 Interval = 4;
+}
+
+message MarketLastPricesRequest {
+  repeated int64 MarketItemIds = 1;
 }
 
 
@@ -123,21 +138,38 @@ service UserPortfolioService {
   }
   rpc RetrieveOrCreatePortfolio(CreatePortfolioRequest) returns (Portfolio) {
     option (google.api.http) = {
-      post: "/v1/portfolio/{UserId}"
+      post: "/v1/portfolio"
       body: "*"
     };
   }
-
+  rpc RetrieveOrCreatePortfolioItem(CreatePortfolioItemRequest) returns (PortfolioItem) {
+    option (google.api.http) = {
+      post: "/v1/portfolio/{PortfolioId}/items"
+      body: "*"
+    };
+  }
+  rpc DeletePortfolioItem(DeletePortfolioItemRequest) returns (Empty) {
+    option (google.api.http) = {
+      delete: "/v1/portfolio/items/{Id}"
+//      body: "*"
+    };
+  }
   rpc AvailableMarketItems(Empty) returns (MarketItemsResponse) {
     option (google.api.http) = {
-      get: "/v1/market_items"
+      get: "/v1/market/items"
 //      body: "*"
     };
   }
   rpc MarketItemsPrices(MarketItemPricesRequest) returns (MarketItemPricesResponse) {
     option (google.api.http) = {
-      get: "/v1/market_items/{MarketItemId}"
+      get: "/v1/market/items/{MarketItemId}/prices"
 //      body: "*"
+    };
+  }
+  rpc MarketLastPrices(MarketLastPricesRequest) returns (MarketItemPricesResponse) {
+    option (google.api.http) = {
+      get: "/v1/market/prices/last"
+//        body: "*"
     };
   }
 }

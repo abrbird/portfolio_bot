@@ -11,6 +11,7 @@ type File struct {
 }
 
 type Application struct {
+	Host                  string       `yaml:"host"`
 	HistoryStartTimeStamp int64        `yaml:"historyStartTimeStamp"`
 	HistoryInterval       uint64       `yaml:"historyInterval"`
 	ValidateInternal      bool         `yaml:"validateInternal"`

@@ -78,6 +78,16 @@ func (c *Client) GetOrCreatePortfolio(userId int64) (*api.Portfolio, error) {
 	return nil, nil
 }
 
+func (c *Client) CreateOrUpdatePortfolioItem(portfolioItemData *domain.PortfolioItemCreate) (*api.PortfolioItem, error) {
+	//TODO implement me
+	return nil, nil
+}
+
+func (c *Client) DeletePortfolioItem(portfolioItemId int64) (*api.Empty, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (c *Client) GetAvailableMarketItems() ([]*api.MarketItem, error) {
 	//TODO implement me
 	return nil, nil
@@ -86,4 +96,9 @@ func (c *Client) GetAvailableMarketItems() ([]*api.MarketItem, error) {
 func (c *Client) GetMarketItemPrices(marketItemId int64, startTimeStamp int64, endTimeStamp int64, interval int64) ([]*api.MarketPrice, error) {
 	//TODO implement me
 	return nil, nil
+}
+
+func (c *Client) GetMarketLastPrices(marketItemIds []int64) ([]*api.MarketPrice, error) {
+	//TODO implement me
+	panic("implement me")
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"gitlab.ozon.dev/zBlur/homework-2/config"
 	"gitlab.ozon.dev/zBlur/homework-2/pkg/bot"
 	"gitlab.ozon.dev/zBlur/homework-2/pkg/client/grpc_client"
@@ -13,10 +14,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//appClient := http_client.New(config_.ClientAPIKeys.AnyClient, "http://0.0.0.0:8090/v1", 5*time.Second)
-	appClient := grpc_client.New(config_.ClientAPIKeys.AnyClient, "localhost:8080")
+	//appClient := http_client.New(
+	//	config_.ClientAPIKeys.AnyClient,
+	//	fmt.Sprintf("http://%s:8090/v1", config_.Application.Host),
+	//	5*time.Second,
+	//)
+	appClient := grpc_client.New(config_.ClientAPIKeys.AnyClient, fmt.Sprintf("%s:8080", config_.Application.Host))
 
-	tgBot := bot.New(config_.ExternalAPIKeys.Telegram, appClient)
+	tgBot := bot.New(config_.ExternalAPIKeys.Telegram, appClient, false)
 	log.Printf("Authorized on account %s \n", tgBot.GetSelf().UserName)
 
 	updates := tgBot.GetUpdatesChan(60)

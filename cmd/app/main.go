@@ -21,8 +21,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Println(config_.Database.Uri())
-
 	runServer(config_)
 }
 
@@ -47,7 +45,7 @@ func runServer(config_ *config.Config) {
 		repository,
 		service,
 	)
-	lis, err := net.Listen("tcp", "localhost:8080")
+	lis, err := net.Listen("tcp", ":8080")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

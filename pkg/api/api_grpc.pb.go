@@ -28,8 +28,11 @@ type UserPortfolioServiceClient interface {
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*Empty, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*Empty, error)
 	RetrieveOrCreatePortfolio(ctx context.Context, in *CreatePortfolioRequest, opts ...grpc.CallOption) (*Portfolio, error)
+	RetrieveOrCreatePortfolioItem(ctx context.Context, in *CreatePortfolioItemRequest, opts ...grpc.CallOption) (*PortfolioItem, error)
+	DeletePortfolioItem(ctx context.Context, in *DeletePortfolioItemRequest, opts ...grpc.CallOption) (*Empty, error)
 	AvailableMarketItems(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*MarketItemsResponse, error)
 	MarketItemsPrices(ctx context.Context, in *MarketItemPricesRequest, opts ...grpc.CallOption) (*MarketItemPricesResponse, error)
+	MarketLastPrices(ctx context.Context, in *MarketLastPricesRequest, opts ...grpc.CallOption) (*MarketItemPricesResponse, error)
 }
 
 type userPortfolioServiceClient struct {
@@ -94,6 +97,24 @@ func (c *userPortfolioServiceClient) RetrieveOrCreatePortfolio(ctx context.Conte
 	return out, nil
 }
 
+func (c *userPortfolioServiceClient) RetrieveOrCreatePortfolioItem(ctx context.Context, in *CreatePortfolioItemRequest, opts ...grpc.CallOption) (*PortfolioItem, error) {
+	out := new(PortfolioItem)
+	err := c.cc.Invoke(ctx, "/api.UserPortfolioService/RetrieveOrCreatePortfolioItem", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userPortfolioServiceClient) DeletePortfolioItem(ctx context.Context, in *DeletePortfolioItemRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/api.UserPortfolioService/DeletePortfolioItem", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userPortfolioServiceClient) AvailableMarketItems(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*MarketItemsResponse, error) {
 	out := new(MarketItemsResponse)
 	err := c.cc.Invoke(ctx, "/api.UserPortfolioService/AvailableMarketItems", in, out, opts...)
@@ -112,6 +133,15 @@ func (c *userPortfolioServiceClient) MarketItemsPrices(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *userPortfolioServiceClient) MarketLastPrices(ctx context.Context, in *MarketLastPricesRequest, opts ...grpc.CallOption) (*MarketItemPricesResponse, error) {
+	out := new(MarketItemPricesResponse)
+	err := c.cc.Invoke(ctx, "/api.UserPortfolioService/MarketLastPrices", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserPortfolioServiceServer is the server API for UserPortfolioService service.
 // All implementations must embed UnimplementedUserPortfolioServiceServer
 // for forward compatibility
@@ -122,8 +152,11 @@ type UserPortfolioServiceServer interface {
 	UpdateUser(context.Context, *UpdateUserRequest) (*Empty, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*Empty, error)
 	RetrieveOrCreatePortfolio(context.Context, *CreatePortfolioRequest) (*Portfolio, error)
+	RetrieveOrCreatePortfolioItem(context.Context, *CreatePortfolioItemRequest) (*PortfolioItem, error)
+	DeletePortfolioItem(context.Context, *DeletePortfolioItemRequest) (*Empty, error)
 	AvailableMarketItems(context.Context, *Empty) (*MarketItemsResponse, error)
 	MarketItemsPrices(context.Context, *MarketItemPricesRequest) (*MarketItemPricesResponse, error)
+	MarketLastPrices(context.Context, *MarketLastPricesRequest) (*MarketItemPricesResponse, error)
 	mustEmbedUnimplementedUserPortfolioServiceServer()
 }
 
@@ -149,11 +182,20 @@ func (UnimplementedUserPortfolioServiceServer) DeleteUser(context.Context, *Dele
 func (UnimplementedUserPortfolioServiceServer) RetrieveOrCreatePortfolio(context.Context, *CreatePortfolioRequest) (*Portfolio, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RetrieveOrCreatePortfolio not implemented")
 }
+func (UnimplementedUserPortfolioServiceServer) RetrieveOrCreatePortfolioItem(context.Context, *CreatePortfolioItemRequest) (*PortfolioItem, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RetrieveOrCreatePortfolioItem not implemented")
+}
+func (UnimplementedUserPortfolioServiceServer) DeletePortfolioItem(context.Context, *DeletePortfolioItemRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePortfolioItem not implemented")
+}
 func (UnimplementedUserPortfolioServiceServer) AvailableMarketItems(context.Context, *Empty) (*MarketItemsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AvailableMarketItems not implemented")
 }
 func (UnimplementedUserPortfolioServiceServer) MarketItemsPrices(context.Context, *MarketItemPricesRequest) (*MarketItemPricesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MarketItemsPrices not implemented")
+}
+func (UnimplementedUserPortfolioServiceServer) MarketLastPrices(context.Context, *MarketLastPricesRequest) (*MarketItemPricesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MarketLastPrices not implemented")
 }
 func (UnimplementedUserPortfolioServiceServer) mustEmbedUnimplementedUserPortfolioServiceServer() {}
 
@@ -276,6 +318,42 @@ func _UserPortfolioService_RetrieveOrCreatePortfolio_Handler(srv interface{}, ct
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserPortfolioService_RetrieveOrCreatePortfolioItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreatePortfolioItemRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserPortfolioServiceServer).RetrieveOrCreatePortfolioItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.UserPortfolioService/RetrieveOrCreatePortfolioItem",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserPortfolioServiceServer).RetrieveOrCreatePortfolioItem(ctx, req.(*CreatePortfolioItemRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserPortfolioService_DeletePortfolioItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeletePortfolioItemRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserPortfolioServiceServer).DeletePortfolioItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.UserPortfolioService/DeletePortfolioItem",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserPortfolioServiceServer).DeletePortfolioItem(ctx, req.(*DeletePortfolioItemRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _UserPortfolioService_AvailableMarketItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Empty)
 	if err := dec(in); err != nil {
@@ -312,6 +390,24 @@ func _UserPortfolioService_MarketItemsPrices_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserPortfolioService_MarketLastPrices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MarketLastPricesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserPortfolioServiceServer).MarketLastPrices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.UserPortfolioService/MarketLastPrices",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserPortfolioServiceServer).MarketLastPrices(ctx, req.(*MarketLastPricesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserPortfolioService_ServiceDesc is the grpc.ServiceDesc for UserPortfolioService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -344,12 +440,24 @@ var UserPortfolioService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserPortfolioService_RetrieveOrCreatePortfolio_Handler,
 		},
 		{
+			MethodName: "RetrieveOrCreatePortfolioItem",
+			Handler:    _UserPortfolioService_RetrieveOrCreatePortfolioItem_Handler,
+		},
+		{
+			MethodName: "DeletePortfolioItem",
+			Handler:    _UserPortfolioService_DeletePortfolioItem_Handler,
+		},
+		{
 			MethodName: "AvailableMarketItems",
 			Handler:    _UserPortfolioService_AvailableMarketItems_Handler,
 		},
 		{
 			MethodName: "MarketItemsPrices",
 			Handler:    _UserPortfolioService_MarketItemsPrices_Handler,
+		},
+		{
+			MethodName: "MarketLastPrices",
+			Handler:    _UserPortfolioService_MarketLastPrices_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

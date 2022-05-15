@@ -1,6 +1,9 @@
 package sql_repository
 
-import "gitlab.ozon.dev/zBlur/homework-2/internal/domain"
+import (
+	"context"
+	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
+)
 
 //portfolioRepository     *SQLPortfolioRepository
 //portfolioItemRepository *
@@ -17,8 +20,7 @@ type SQLPortfolioItem struct {
 	Volume       float64
 }
 
-func (r SQLPortfolioItemRepository) RetrieveOrCreate(portfolioData domain.PortfolioItemCreate) domain.PortfolioItemRetrieve {
-
+func (r SQLPortfolioItemRepository) RetrieveOrCreate(ctx context.Context, portfolioData domain.PortfolioItemCreate) domain.PortfolioItemRetrieve {
 	const query = `
 		INSERT INTO portfolios_item (
 			portfolioid,
@@ -31,15 +33,18 @@ func (r SQLPortfolioItemRepository) RetrieveOrCreate(portfolioData domain.Portfo
 		ON CONFLICT ON CONSTRAINT portfolios_item_portfolioid_marketitemid_key
 		DO UPDATE SET (
 			portfolioid,
-			marketitemid
+			marketitemid,
+			price,
+		    volume
 		) = (
-			$1, $2
+			$1, $2, $3, $4
 		) WHERE portfolios_item.portfolioid = $1 AND portfolios_item.marketitemid = $2
 		RETURNING id, portfolioid, marketitemid, price, volume;
 	`
 
 	sqlPortfolioItem := &SQLPortfolioItem{}
-	if err := r.store.db.QueryRow(
+	if err := r.store.db.QueryRowContext(
+		ctx,
 		query,
 		portfolioData.PortfolioId,
 		portfolioData.MarketItemId,
@@ -52,7 +57,7 @@ func (r SQLPortfolioItemRepository) RetrieveOrCreate(portfolioData domain.Portfo
 		&sqlPortfolioItem.Price,
 		&sqlPortfolioItem.Volume,
 	); err != nil {
-		return domain.PortfolioItemRetrieve{PortfolioItem: nil, Error: err}
+		return domain.PortfolioItemRetrieve{PortfolioItem: nil, Error: domain.UnknownError}
 	}
 	portfolioItem := &domain.PortfolioItem{
 		Id:           sqlPortfolioItem.Id,
@@ -64,7 +69,7 @@ func (r SQLPortfolioItemRepository) RetrieveOrCreate(portfolioData domain.Portfo
 	return domain.PortfolioItemRetrieve{PortfolioItem: portfolioItem, Error: nil}
 }
 
-func (r SQLPortfolioItemRepository) RetrievePortfolioItems(portfolioId int64) *domain.PortfolioItemsRetrieve {
+func (r SQLPortfolioItemRepository) RetrievePortfolioItems(ctx context.Context, portfolioId int64) *domain.PortfolioItemsRetrieve {
 	const query = `
 		SELECT 
     		id,
@@ -77,12 +82,13 @@ func (r SQLPortfolioItemRepository) RetrievePortfolioItems(portfolioId int64) *d
 	`
 
 	portfolioItem := make([]domain.PortfolioItem, 0)
-	rows, err := r.store.db.Query(
+	rows, err := r.store.db.QueryContext(
+		ctx,
 		query,
 		portfolioId,
 	)
 	if err != nil {
-		return &domain.PortfolioItemsRetrieve{PortfolioItems: nil, Error: err}
+		return &domain.PortfolioItemsRetrieve{PortfolioItems: nil, Error: domain.NotFoundError}
 	}
 
 	for rows.Next() {
@@ -95,7 +101,7 @@ func (r SQLPortfolioItemRepository) RetrievePortfolioItems(portfolioId int64) *d
 			&sqlPortfolioItem.Price,
 			&sqlPortfolioItem.Volume,
 		); err != nil {
-			return &domain.PortfolioItemsRetrieve{PortfolioItems: nil, Error: err}
+			return &domain.PortfolioItemsRetrieve{PortfolioItems: nil, Error: domain.UnknownError}
 		}
 		portfolioItem = append(
 			portfolioItem,
@@ -108,21 +114,29 @@ func (r SQLPortfolioItemRepository) RetrievePortfolioItems(portfolioId int64) *d
 			})
 	}
 
-	return &domain.PortfolioItemsRetrieve{PortfolioItems: portfolioItem, Error: err}
+	return &domain.PortfolioItemsRetrieve{PortfolioItems: portfolioItem, Error: nil}
 }
 
-func (r SQLPortfolioItemRepository) Delete(portfolioItemId int64) error {
+func (r SQLPortfolioItemRepository) Delete(ctx context.Context, portfolioItemId int64) error {
 	const query = `
 		DELETE FROM portfolios_item
 		WHERE id = $1
 	`
 
-	err := r.store.db.QueryRow(
+	res, err := r.store.db.ExecContext(
+		ctx,
 		query,
 		portfolioItemId,
-	).Err()
+	)
 	if err != nil {
-		return err
+		return domain.NotFoundError
+	}
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return domain.NotFoundError
+	}
+	if rows == 0 {
+		return domain.NotFoundError
 	}
 	return nil
 }

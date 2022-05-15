@@ -5,6 +5,7 @@ import (
 	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
 	"gitlab.ozon.dev/zBlur/homework-2/pkg/api"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"log"
 	"time"
@@ -23,7 +24,7 @@ func New(apiKey string, target string) *Client {
 }
 
 func (c *Client) prepareClientContext() (*grpc.ClientConn, api.UserPortfolioServiceClient, context.Context, error) {
-	conn, err := grpc.Dial(c.target, grpc.WithInsecure())
+	conn, err := grpc.Dial(c.target, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -90,6 +91,59 @@ func (c *Client) GetOrCreatePortfolio(userId int64) (*api.Portfolio, error) {
 	return portfolioPB, nil
 }
 
+func (c *Client) CreateOrUpdatePortfolioItem(portfolioItemData *domain.PortfolioItemCreate) (*api.PortfolioItem, error) {
+	conn, clnt, ctx, err := c.prepareClientContext()
+	if err != nil {
+		return nil, err
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(conn)
+
+	portfolioItem, err := clnt.RetrieveOrCreatePortfolioItem(
+		ctx,
+		&api.CreatePortfolioItemRequest{
+			PortfolioId:  portfolioItemData.PortfolioId,
+			MarketItemId: portfolioItemData.MarketItemId,
+			Price:        portfolioItemData.Price,
+			Volume:       portfolioItemData.Volume,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return portfolioItem, nil
+}
+
+func (c *Client) DeletePortfolioItem(portfolioItemId int64) (*api.Empty, error) {
+	conn, clnt, ctx, err := c.prepareClientContext()
+	if err != nil {
+		return nil, err
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(conn)
+
+	empty, err := clnt.DeletePortfolioItem(
+		ctx,
+		&api.DeletePortfolioItemRequest{
+			Id: portfolioItemId,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return empty, nil
+}
+
 func (c *Client) GetAvailableMarketItems() ([]*api.MarketItem, error) {
 	conn, clnt, ctx, err := c.prepareClientContext()
 	if err != nil {
@@ -138,6 +192,31 @@ func (c *Client) GetMarketItemPrices(
 			StartTimestamp: startTimeStamp,
 			EndTimestamp:   endTimeStamp,
 			Interval:       interval,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return marketItemPricesResponse.MarketPrices, nil
+}
+
+func (c *Client) GetMarketLastPrices(marketItemIds []int64) ([]*api.MarketPrice, error) {
+	conn, clnt, ctx, err := c.prepareClientContext()
+	if err != nil {
+		return nil, err
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}(conn)
+
+	marketItemPricesResponse, err := clnt.MarketLastPrices(
+		ctx,
+		&api.MarketLastPricesRequest{
+			MarketItemIds: marketItemIds,
 		},
 	)
 	if err != nil {

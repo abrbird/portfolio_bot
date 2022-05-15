@@ -317,23 +317,6 @@ func request_UserPortfolioService_RetrieveOrCreatePortfolio_0(ctx context.Contex
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["UserId"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "UserId")
-	}
-
-	protoReq.UserId, err = runtime.Int64(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "UserId", err)
-	}
-
 	msg, err := client.RetrieveOrCreatePortfolio(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
@@ -351,6 +334,23 @@ func local_request_UserPortfolioService_RetrieveOrCreatePortfolio_0(ctx context.
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
+	msg, err := server.RetrieveOrCreatePortfolio(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_UserPortfolioService_RetrieveOrCreatePortfolioItem_0(ctx context.Context, marshaler runtime.Marshaler, client UserPortfolioServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreatePortfolioItemRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
 	var (
 		val string
 		ok  bool
@@ -358,17 +358,103 @@ func local_request_UserPortfolioService_RetrieveOrCreatePortfolio_0(ctx context.
 		_   = err
 	)
 
-	val, ok = pathParams["UserId"]
+	val, ok = pathParams["PortfolioId"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "UserId")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "PortfolioId")
 	}
 
-	protoReq.UserId, err = runtime.Int64(val)
+	protoReq.PortfolioId, err = runtime.Int64(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "UserId", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "PortfolioId", err)
 	}
 
-	msg, err := server.RetrieveOrCreatePortfolio(ctx, &protoReq)
+	msg, err := client.RetrieveOrCreatePortfolioItem(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_UserPortfolioService_RetrieveOrCreatePortfolioItem_0(ctx context.Context, marshaler runtime.Marshaler, server UserPortfolioServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreatePortfolioItemRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["PortfolioId"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "PortfolioId")
+	}
+
+	protoReq.PortfolioId, err = runtime.Int64(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "PortfolioId", err)
+	}
+
+	msg, err := server.RetrieveOrCreatePortfolioItem(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_UserPortfolioService_DeletePortfolioItem_0(ctx context.Context, marshaler runtime.Marshaler, client UserPortfolioServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DeletePortfolioItemRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["Id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "Id")
+	}
+
+	protoReq.Id, err = runtime.Int64(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "Id", err)
+	}
+
+	msg, err := client.DeletePortfolioItem(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_UserPortfolioService_DeletePortfolioItem_0(ctx context.Context, marshaler runtime.Marshaler, server UserPortfolioServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DeletePortfolioItemRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["Id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "Id")
+	}
+
+	protoReq.Id, err = runtime.Int64(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "Id", err)
+	}
+
+	msg, err := server.DeletePortfolioItem(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -457,6 +543,42 @@ func local_request_UserPortfolioService_MarketItemsPrices_0(ctx context.Context,
 	}
 
 	msg, err := server.MarketItemsPrices(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+var (
+	filter_UserPortfolioService_MarketLastPrices_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
+func request_UserPortfolioService_MarketLastPrices_0(ctx context.Context, marshaler runtime.Marshaler, client UserPortfolioServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq MarketLastPricesRequest
+	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_UserPortfolioService_MarketLastPrices_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.MarketLastPrices(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_UserPortfolioService_MarketLastPrices_0(ctx context.Context, marshaler runtime.Marshaler, server UserPortfolioServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq MarketLastPricesRequest
+	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_UserPortfolioService_MarketLastPrices_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.MarketLastPrices(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -594,7 +716,7 @@ func RegisterUserPortfolioServiceHandlerServer(ctx context.Context, mux *runtime
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/api.UserPortfolioService/RetrieveOrCreatePortfolio", runtime.WithHTTPPathPattern("/v1/portfolio/{UserId}"))
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/api.UserPortfolioService/RetrieveOrCreatePortfolio", runtime.WithHTTPPathPattern("/v1/portfolio"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -611,6 +733,54 @@ func RegisterUserPortfolioServiceHandlerServer(ctx context.Context, mux *runtime
 
 	})
 
+	mux.Handle("POST", pattern_UserPortfolioService_RetrieveOrCreatePortfolioItem_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/api.UserPortfolioService/RetrieveOrCreatePortfolioItem", runtime.WithHTTPPathPattern("/v1/portfolio/{PortfolioId}/items"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_UserPortfolioService_RetrieveOrCreatePortfolioItem_0(ctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_UserPortfolioService_RetrieveOrCreatePortfolioItem_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("DELETE", pattern_UserPortfolioService_DeletePortfolioItem_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/api.UserPortfolioService/DeletePortfolioItem", runtime.WithHTTPPathPattern("/v1/portfolio/items/{Id}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_UserPortfolioService_DeletePortfolioItem_0(ctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_UserPortfolioService_DeletePortfolioItem_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("GET", pattern_UserPortfolioService_AvailableMarketItems_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -618,7 +788,7 @@ func RegisterUserPortfolioServiceHandlerServer(ctx context.Context, mux *runtime
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/api.UserPortfolioService/AvailableMarketItems", runtime.WithHTTPPathPattern("/v1/market_items"))
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/api.UserPortfolioService/AvailableMarketItems", runtime.WithHTTPPathPattern("/v1/market/items"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -642,7 +812,7 @@ func RegisterUserPortfolioServiceHandlerServer(ctx context.Context, mux *runtime
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/api.UserPortfolioService/MarketItemsPrices", runtime.WithHTTPPathPattern("/v1/market_items/{MarketItemId}"))
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/api.UserPortfolioService/MarketItemsPrices", runtime.WithHTTPPathPattern("/v1/market/items/{MarketItemId}/prices"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -656,6 +826,30 @@ func RegisterUserPortfolioServiceHandlerServer(ctx context.Context, mux *runtime
 		}
 
 		forward_UserPortfolioService_MarketItemsPrices_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_UserPortfolioService_MarketLastPrices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/api.UserPortfolioService/MarketLastPrices", runtime.WithHTTPPathPattern("/v1/market/prices/last"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_UserPortfolioService_MarketLastPrices_0(ctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_UserPortfolioService_MarketLastPrices_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -810,7 +1004,7 @@ func RegisterUserPortfolioServiceHandlerClient(ctx context.Context, mux *runtime
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/api.UserPortfolioService/RetrieveOrCreatePortfolio", runtime.WithHTTPPathPattern("/v1/portfolio/{UserId}"))
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/api.UserPortfolioService/RetrieveOrCreatePortfolio", runtime.WithHTTPPathPattern("/v1/portfolio"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -826,12 +1020,54 @@ func RegisterUserPortfolioServiceHandlerClient(ctx context.Context, mux *runtime
 
 	})
 
+	mux.Handle("POST", pattern_UserPortfolioService_RetrieveOrCreatePortfolioItem_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/api.UserPortfolioService/RetrieveOrCreatePortfolioItem", runtime.WithHTTPPathPattern("/v1/portfolio/{PortfolioId}/items"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_UserPortfolioService_RetrieveOrCreatePortfolioItem_0(ctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_UserPortfolioService_RetrieveOrCreatePortfolioItem_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("DELETE", pattern_UserPortfolioService_DeletePortfolioItem_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/api.UserPortfolioService/DeletePortfolioItem", runtime.WithHTTPPathPattern("/v1/portfolio/items/{Id}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_UserPortfolioService_DeletePortfolioItem_0(ctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_UserPortfolioService_DeletePortfolioItem_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("GET", pattern_UserPortfolioService_AvailableMarketItems_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/api.UserPortfolioService/AvailableMarketItems", runtime.WithHTTPPathPattern("/v1/market_items"))
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/api.UserPortfolioService/AvailableMarketItems", runtime.WithHTTPPathPattern("/v1/market/items"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -852,7 +1088,7 @@ func RegisterUserPortfolioServiceHandlerClient(ctx context.Context, mux *runtime
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/api.UserPortfolioService/MarketItemsPrices", runtime.WithHTTPPathPattern("/v1/market_items/{MarketItemId}"))
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/api.UserPortfolioService/MarketItemsPrices", runtime.WithHTTPPathPattern("/v1/market/items/{MarketItemId}/prices"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -865,6 +1101,27 @@ func RegisterUserPortfolioServiceHandlerClient(ctx context.Context, mux *runtime
 		}
 
 		forward_UserPortfolioService_MarketItemsPrices_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_UserPortfolioService_MarketLastPrices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/api.UserPortfolioService/MarketLastPrices", runtime.WithHTTPPathPattern("/v1/market/prices/last"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_UserPortfolioService_MarketLastPrices_0(ctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_UserPortfolioService_MarketLastPrices_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -882,11 +1139,17 @@ var (
 
 	pattern_UserPortfolioService_DeleteUser_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "users", "Id"}, ""))
 
-	pattern_UserPortfolioService_RetrieveOrCreatePortfolio_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "portfolio", "UserId"}, ""))
+	pattern_UserPortfolioService_RetrieveOrCreatePortfolio_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "portfolio"}, ""))
 
-	pattern_UserPortfolioService_AvailableMarketItems_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "market_items"}, ""))
+	pattern_UserPortfolioService_RetrieveOrCreatePortfolioItem_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "portfolio", "PortfolioId", "items"}, ""))
 
-	pattern_UserPortfolioService_MarketItemsPrices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "market_items", "MarketItemId"}, ""))
+	pattern_UserPortfolioService_DeletePortfolioItem_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "portfolio", "items", "Id"}, ""))
+
+	pattern_UserPortfolioService_AvailableMarketItems_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "market", "items"}, ""))
+
+	pattern_UserPortfolioService_MarketItemsPrices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "market", "items", "MarketItemId", "prices"}, ""))
+
+	pattern_UserPortfolioService_MarketLastPrices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "market", "prices", "last"}, ""))
 )
 
 var (
@@ -902,7 +1165,13 @@ var (
 
 	forward_UserPortfolioService_RetrieveOrCreatePortfolio_0 = runtime.ForwardResponseMessage
 
+	forward_UserPortfolioService_RetrieveOrCreatePortfolioItem_0 = runtime.ForwardResponseMessage
+
+	forward_UserPortfolioService_DeletePortfolioItem_0 = runtime.ForwardResponseMessage
+
 	forward_UserPortfolioService_AvailableMarketItems_0 = runtime.ForwardResponseMessage
 
 	forward_UserPortfolioService_MarketItemsPrices_0 = runtime.ForwardResponseMessage
+
+	forward_UserPortfolioService_MarketLastPrices_0 = runtime.ForwardResponseMessage
 )

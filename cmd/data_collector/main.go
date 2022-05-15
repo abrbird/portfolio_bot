@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/jasonlvhit/gocron"
 	"gitlab.ozon.dev/zBlur/homework-2/config"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/data_collector/yahoo_finance"
@@ -27,7 +28,7 @@ func GetMinTimeStamp(tss []int64, defaultMinTimeStamp int64) int64 {
 func GetLastTimeStamps(mis []domain.MarketItem, defaultTimeStamp int64, repo repository.Repository) []int64 {
 	lastTimeStamps := make([]int64, len(mis))
 	for i, item := range mis {
-		lastMarketPriceRetrieved := repo.MarketPrice().RetrieveLast(item.Id)
+		lastMarketPriceRetrieved := repo.MarketPrice().RetrieveLast(context.Background(), item.Id)
 		if lastMarketPriceRetrieved.Error == nil && lastMarketPriceRetrieved.MarketPrice != nil {
 			lastTimeStamps[i] = lastMarketPriceRetrieved.MarketPrice.Timestamp
 		} else {
@@ -40,11 +41,11 @@ func GetLastTimeStamps(mis []domain.MarketItem, defaultTimeStamp int64, repo rep
 func collect(config_ *config.Config, serv service.Service, repo repository.Repository) error {
 	log.Println("running task...")
 
-	baseCurrency := repo.Currency().Retrieve(config_.Application.BaseCurrency)
+	baseCurrency := repo.Currency().Retrieve(context.Background(), config_.Application.BaseCurrency)
 	log.Println("base currency: ", baseCurrency.Currency)
 
 	configMarketItems := config_.Application.GetDomainMarketItems()
-	availableMarketItemsRetrieve := serv.MarketItem().RetrieveMany(configMarketItems, repo.MarketItem())
+	availableMarketItemsRetrieve := serv.MarketItem().RetrieveMany(context.Background(), configMarketItems, repo.MarketItem())
 
 	if availableMarketItemsRetrieve.Error != nil {
 		log.Println(availableMarketItemsRetrieve.Error)
@@ -88,44 +89,22 @@ func collect(config_ *config.Config, serv service.Service, repo repository.Repos
 				return err
 			}
 
-			errorsCount := 0
-			successCount := 0
+			errorsCount := int64(0)
+			successCount := int64(0)
 			for marketItem, historical := range *historicalMap {
 				marketPrices := historical.ToMarketPriceArray(marketItem)
-				for _, mp := range *marketPrices {
-					err := repo.MarketPrice().Create(&mp)
-					if err != nil {
-						errorsCount++
-						log.Println(err)
-					} else {
-						successCount++
-					}
+				inserted, err := repo.MarketPrice().BulkCreate(context.Background(), marketPrices)
+				if err != nil {
+					log.Println(err)
 				}
+				successCount += inserted
+				errorsCount += int64(len(*marketPrices)) - inserted
 			}
 			log.Printf("data collection %s done. Success: %d, Errors: %d\n", yfDataSource.Name, successCount, errorsCount)
 		} else {
 			log.Printf("no available MarketItem")
 		}
 	}
-
-	//if ccDataSource, ok := config_.DataSourcesMap[crypto_compare.ServiceName]; ok {
-	//		cl, err := crypto_compare.New(ccDataSource)
-	//		if err != nil {
-	//			return err
-	//		}
-	//
-	//		historicalHourBTC, err := cl.GetHistoricalHour(
-	//			"BTC",
-	//			data_collector.DefaultBaseCurrencyCode,
-	//			crypto_compare.MaxLimit,
-	//			time.Now(),
-	//		)
-	//		if err != nil {
-	//			return err
-	//		}
-	//
-	//		fmt.Println(*historicalHourBTC)
-	//}
 
 	return nil
 }

@@ -37,8 +37,8 @@ const Range5Y = "5y"
 const RangeMAX = "max"
 
 func GetRange(tsStart int64, tsEnd int64) string {
-	tsStart_ := time.Unix(tsStart, 0)
-	tsEnd_ := time.Unix(tsEnd, 0)
+	tsStart_ := time.Unix(tsStart, 0).UTC()
+	tsEnd_ := time.Unix(tsEnd, 0).UTC()
 
 	differenceInDays := math.Ceil(tsEnd_.Sub(tsStart_).Hours() / 24)
 

@@ -4,6 +4,7 @@ package main
 
 import (
 	"flag"
+	"gitlab.ozon.dev/zBlur/homework-2/config"
 	"log"
 	"os"
 
@@ -18,18 +19,23 @@ var (
 )
 
 func main() {
-	err := flags.Parse(os.Args[1:])
+	config_, err := config.ParseConfig("config/config.yml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = flags.Parse(os.Args[1:])
 	if err != nil {
 		log.Fatal("goose: failed on args parsing")
 	}
 
 	args := flags.Args()
-	if len(args) < 2 {
+	if len(args) < 1 {
 		flags.Usage()
 		return
 	}
 
-	dbstring, command := args[1], args[2]
+	dbstring, command := config_.Database.Uri(), args[1]
 
 	db, err := goose.OpenDBWithDriver("postgres", dbstring)
 	if err != nil {
