@@ -34,7 +34,7 @@ func New(apiKey string, clnt client.Client, debug bool) *TelegramHandler {
 		apiKey:    apiKey,
 		clnt:      clnt,
 		tgBot:     tgBot,
-		userCache: cache.New(),
+		userCache: cache.New(60),
 	}
 }
 
