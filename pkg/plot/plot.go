@@ -16,7 +16,7 @@ func MarketItem(marketItem *api.MarketItem, marketItemPrices []*api.MarketPrice,
 	yValues := make([]float64, len(marketItemPrices))
 	yPValues := make([]float64, len(marketItemPrices))
 	yMin := math.MaxFloat64
-	yMax := -yMin
+	yMax := -math.MaxFloat64
 	for i, mip := range marketItemPrices {
 		xValues[i] = time.Unix(mip.GetTimestamp(), 0)
 		yValues[i] = mip.GetPrice()
@@ -143,7 +143,7 @@ func PortfolioSummary(
 			bars[i].Label = time.Unix(pip.GetTimestamp(), 0).Format("Jan 02")
 		}
 	}
-	yMin := float64(0)
+	yMin := math.MaxFloat64
 	yMax := -math.MaxFloat64
 	for i, _ := range bars {
 		bars[i].Value -= totalPurchase
@@ -161,6 +161,12 @@ func PortfolioSummary(
 		if bars[i].Value < yMin {
 			yMin = bars[i].Value
 		}
+	}
+	if yMin > 0 {
+		yMin = 0
+	}
+	if yMax < 0 {
+		yMax = 0
 	}
 
 	sbc := chart.BarChart{
