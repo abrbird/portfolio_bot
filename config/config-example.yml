@@ -1,0 +1,41 @@
+
+application:
+  validateInternal: true  # use client authentication or not
+
+  baseCurrency: "USD"
+  historyStartTimeStamp: 1640995200  # 2022-01-01 00:00:00
+  historyInterval: 3600  # 1 hour
+  availableMarketItems:
+    - code: "AAPL"
+      type: "Stock"
+    - code: "EBAY"
+      type: "Stock"
+    - code: "AMZN"
+      type: "Stock"
+    - code: "AAAU"
+      type: "ETF"
+    - code: "BTC"
+      type: "CryptoCurrency"
+    - code: "ETH"
+      type: "CryptoCurrency"
+
+
+clientApiKeys:
+  anyClient: "random-string-that-clients-will-use-as-APIKey"
+
+externalApiKeys:
+  telegram: "telegram-bot-APIKey"
+
+
+database:
+  db: "db-name"
+  host: "db-host"
+  port: 5432
+  user: "db-user"
+  password: "db-pass"
+
+
+dataSources:
+  - name: "YahooFinance"
+    apiKey: "YahooFinance-ApiKey"
+    url: "https://yfapi.net"

@@ -1,0 +1,49 @@
+version: "3.3"
+
+services:
+  db:
+    container_name: pg_container
+    image: postgres:13.3
+    restart: always
+    user: root
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=homework_2
+    volumes:
+      - ./postgres-data:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+
+  db_migrations:
+    container_name: db_migrations
+    build: ./
+    command: /bin/sh -c "/usr/local/bin/goose postgres up -dir ./migrations"
+    depends_on:
+      - db
+
+  app:
+    container_name: app
+    build: ./
+    command: /bin/sh -c "/usr/local/bin/app"
+    depends_on:
+      - db
+      - db_migrations
+    ports:
+      - "8080:8080"  # grpc
+      - "8090:8090"  # grpc-gateway
+
+  data_collector:
+    container_name: data_collector
+    build: ./
+    command: /bin/sh -c "/usr/local/bin/data_collector"
+    depends_on:
+      - db
+
+  telegram_bot:
+    container_name: telegram_bot
+    build: ./
+    command: /bin/sh -c "/usr/local/bin/telegram_bot"
+    depends_on:
+      - db
+      - app
