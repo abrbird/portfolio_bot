@@ -55,11 +55,7 @@ func collect(config_ *config.Config, serv service.Service, repo repository.Repos
 
 	yfDataSource, ok := config_.DataSourcesMap[yahoo_finance.ServiceName]
 	if ok && len(availableMarketItems) > 0 {
-		cl, err := yahoo_finance.New(yfDataSource)
-		if err != nil {
-			log.Println(err)
-			return err
-		}
+		cl := yahoo_finance.New(yfDataSource)
 
 		now := time.Now()
 		lastTimeStamps := GetLastTimeStamps(
