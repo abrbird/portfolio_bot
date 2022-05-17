@@ -62,5 +62,81 @@ func TestRetrieveByType(t *testing.T) {
 			t.Error("code is incorrect")
 		}
 	}
+}
 
+func TestRetrieveMany(t *testing.T) {
+	mc := minimock.NewController(t)
+	defer mc.Finish()
+
+	marketItems := []domain.MarketItem{
+		{Code: "BTC", Type: "CryptoCurrency"},
+		{Code: "AMZN", Type: "Stock"},
+		{Code: "AAAU", Type: "ETF"},
+		{Code: "QTTT", Type: "ETF"},
+	}
+
+	mockRepo := mock_repository.NewMarketItemRepositoryMock(mc)
+	mockRepo.RetrieveByTypeMock.When(
+		context.Background(),
+		[]string{"BTC"},
+		"CryptoCurrency",
+	).Then(
+		&domain.MarketItemsRetrieve{
+			MarketItems: []domain.MarketItem{
+				{
+					Id:    1,
+					Title: "BTC title",
+					Code:  "BTC",
+					Type:  "CryptoCurrency",
+				},
+			},
+			Error: nil,
+		},
+	)
+	mockRepo.RetrieveByTypeMock.When(
+		context.Background(),
+		[]string{"AMZN"},
+		"Stock",
+	).Then(
+		&domain.MarketItemsRetrieve{
+			MarketItems: []domain.MarketItem{},
+			Error:       nil,
+		},
+	)
+	mockRepo.RetrieveByTypeMock.When(
+		context.Background(),
+		[]string{"AAAU", "QTTT"},
+		"ETF",
+	).Then(
+		&domain.MarketItemsRetrieve{
+			MarketItems: []domain.MarketItem{
+				{
+					Id:    2,
+					Title: "ETF title",
+					Code:  "AAAU",
+					Type:  "ETF",
+				},
+				{
+					Id:    3,
+					Title: "QTTT title",
+					Code:  "QTTT",
+					Type:  "ETF",
+				},
+			},
+			Error: nil,
+		},
+	)
+
+	marketItemService := service_impl.MarketItemService{}
+	marketItemsRetrieve := marketItemService.RetrieveMany(context.Background(), marketItems, mockRepo)
+
+	assert.Nil(t, marketItemsRetrieve.Error)
+	assert.NotNil(t, marketItemsRetrieve.MarketItems)
+	assert.LessOrEqual(t, len(marketItemsRetrieve.MarketItems), 4)
+
+	for _, mi := range marketItemsRetrieve.MarketItems {
+		if mi.Code == "AMZN" || mi.Type == "Stock" {
+			t.Errorf("there must not exist MarketItem: %v ", mi)
+		}
+	}
 }

@@ -13,6 +13,8 @@ type MarketPriceService struct{}
 const BatchSize = 10000
 const BlanksRatioError = 0.6
 
+type Empty struct{}
+
 func (m MarketPriceService) RetrieveInterval(ctx context.Context, marketItemId int64, start int64, end int64, repo repository.MarketPriceRepository) *domain.MarketPricesRetrieve {
 	return repo.RetrieveInterval(ctx, marketItemId, start, end)
 }
@@ -56,7 +58,7 @@ func (m MarketPriceService) BulkCreate(ctx context.Context, marketPrices *[]doma
 
 func (m MarketPriceService) FillBlanks(ctx context.Context, marketPrices []domain.MarketPrice, intervals []int64) ([]domain.MarketPrice, int) {
 	resultMarketPrices := make([]domain.MarketPrice, len(intervals))
-	indexesUsed := make([]int, 0)
+	usedIndexesSet := make(map[int]Empty, 0)
 
 	if len(intervals) > 0 && len(marketPrices) > 0 {
 		currentIndex := 0
@@ -74,14 +76,12 @@ func (m MarketPriceService) FillBlanks(ctx context.Context, marketPrices []domai
 					Price:        marketPrices[currentMinIndex].Price,
 					Timestamp:    *endTS,
 				}
+				usedIndexesSet[currentMinIndex] = Empty{}
 
 				currentIndex++
 				if currentIndex < len(intervals) {
 					endTS = &intervals[currentIndex]
 					currentMinDiff = service.AbsInt64(marketPrices[currentMinIndex].Timestamp - *endTS)
-				}
-				if len(indexesUsed) == 0 || currentMinIndex != indexesUsed[len(indexesUsed)-1] {
-					indexesUsed = append(indexesUsed, currentMinIndex)
 				}
 			} else {
 				currentMinDiff = currentDiff
@@ -100,8 +100,7 @@ func (m MarketPriceService) FillBlanks(ctx context.Context, marketPrices []domai
 			}
 		}
 	}
-
-	blanksCount := len(intervals) - len(indexesUsed)
+	blanksCount := len(intervals) - len(usedIndexesSet)
 	return resultMarketPrices, blanksCount
 }
 

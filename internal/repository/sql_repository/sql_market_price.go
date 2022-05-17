@@ -64,6 +64,7 @@ func (r SQLMarketPriceRepository) RetrieveInterval(
     		ts
 		FROM market_price
 		WHERE market_item_id = $1 AND ts >= to_timestamp($2) AND ts <= to_timestamp($3)
+		ORDER BY ts
 	`
 
 	prices := make([]domain.MarketPrice, 0)
