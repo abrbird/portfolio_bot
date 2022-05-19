@@ -8,7 +8,7 @@ import (
 	"gitlab.ozon.dev/zBlur/homework-2/pkg/api"
 	"gitlab.ozon.dev/zBlur/homework-2/pkg/bot/cache"
 	"gitlab.ozon.dev/zBlur/homework-2/pkg/client"
-	"gitlab.ozon.dev/zBlur/homework-2/pkg/plot"
+	"gitlab.ozon.dev/zBlur/homework-2/pkg/graph"
 	"log"
 	"math"
 	"strconv"
@@ -20,6 +20,7 @@ type TelegramHandler struct {
 	apiKey    string
 	clnt      client.Client
 	tgBot     *tgbotapi.BotAPI
+	plt       graph.Drawer
 	userCache *cache.Cache
 }
 
@@ -34,6 +35,7 @@ func New(apiKey string, clnt client.Client, debug bool) *TelegramHandler {
 		apiKey:    apiKey,
 		clnt:      clnt,
 		tgBot:     tgBot,
+		plt:       graph.New(),
 		userCache: cache.New(60 * 5),
 	}
 }
@@ -333,7 +335,7 @@ func (h *TelegramHandler) Handle(update tgbotapi.Update) {
 				)
 
 				if len(portfolioItemsPricesMap) == len(portfolioPB.GetItems()) {
-					buffer, err := plot.PortfolioSummary(totalOldCost, portfolioPB.GetItems(), portfolioItemsPricesMap)
+					buffer, err := h.plt.PortfolioSummary(totalOldCost, portfolioPB.GetItems(), portfolioItemsPricesMap)
 					if err != nil {
 						log.Println(err)
 					} else {
@@ -475,7 +477,7 @@ func (h *TelegramHandler) Handle(update tgbotapi.Update) {
 				return
 			}
 
-			buffer, err := plot.MarketItem(marketItem, marketItemPrices, portfolioMarketItem)
+			buffer, err := h.plt.MarketItem(marketItem, marketItemPrices, portfolioMarketItem)
 			if err != nil {
 				h.Send(update.Message.Chat.ID, ErrorMessage)
 				log.Println(err)

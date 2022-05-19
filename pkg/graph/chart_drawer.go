@@ -1,4 +1,4 @@
-package plot
+package graph
 
 import (
 	"bytes"
@@ -10,7 +10,17 @@ import (
 	"time"
 )
 
-func MarketItem(marketItem *api.MarketItem, marketItemPrices []*api.MarketPrice, portfolioMarketItem *api.PortfolioItem) (*bytes.Buffer, error) {
+type ChartDrawer struct{}
+
+func New() *ChartDrawer {
+	return &ChartDrawer{}
+}
+
+func (chPl *ChartDrawer) MarketItem(
+	marketItem *api.MarketItem,
+	marketItemPrices []*api.MarketPrice,
+	portfolioMarketItem *api.PortfolioItem,
+) (*bytes.Buffer, error) {
 
 	xValues := make([]time.Time, len(marketItemPrices))
 	yValues := make([]float64, len(marketItemPrices))
@@ -113,10 +123,10 @@ func MarketItem(marketItem *api.MarketItem, marketItemPrices []*api.MarketPrice,
 	return buffer, nil
 }
 
-func PortfolioSummary(
-	totalPurchase float64,
+func (chPl *ChartDrawer) PortfolioSummary(
+	baseShift float64,
 	portfolioItems []*api.PortfolioItem,
-	portfolioItemsPricesMap map[int64][]*api.MarketPrice,
+	itemsPricesMap map[int64][]*api.MarketPrice,
 ) (*bytes.Buffer, error) {
 
 	portfolioItemsMap := make(map[int64]*api.PortfolioItem, 0)
@@ -136,8 +146,8 @@ func PortfolioSummary(
 		StrokeWidth: 0,
 	}
 
-	bars := make([]chart.Value, len(portfolioItemsPricesMap[portfolioItems[0].GetMarketItemId()]))
-	for marketItemId, portfolioItemPrices := range portfolioItemsPricesMap {
+	bars := make([]chart.Value, len(itemsPricesMap[portfolioItems[0].GetMarketItemId()]))
+	for marketItemId, portfolioItemPrices := range itemsPricesMap {
 		for i, pip := range portfolioItemPrices {
 			bars[i].Value += pip.GetPrice() * portfolioItemsMap[marketItemId].GetVolume()
 			bars[i].Label = time.Unix(pip.GetTimestamp(), 0).Format("Jan 02")
@@ -146,8 +156,8 @@ func PortfolioSummary(
 	yMin := math.MaxFloat64
 	yMax := -math.MaxFloat64
 	for i, _ := range bars {
-		bars[i].Value -= totalPurchase
-		bars[i].Value = bars[i].Value / totalPurchase * 100
+		bars[i].Value -= baseShift
+		bars[i].Value = bars[i].Value / baseShift * 100
 
 		if bars[i].Value < 0 {
 			bars[i].Style = lossStyle
