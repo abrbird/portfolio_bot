@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"gitlab.ozon.dev/zBlur/homework-2/config"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/repository/sql_repository"
@@ -45,7 +46,7 @@ func runServer(config_ *config.Config) {
 		repository,
 		service,
 	)
-	lis, err := net.Listen("tcp", ":8080")
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", config_.Application.GrpcPort))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -62,7 +63,7 @@ func runServer(config_ *config.Config) {
 
 	api.RegisterUserPortfolioServiceServer(grpcServer, newServer)
 
-	log.Println("Serving gRPC on 0.0.0.0:8080")
+	log.Printf("Serving gRPC on 0.0.0.0:%s", config_.Application.GrpcPort)
 	go func() {
 		err = grpcServer.Serve(lis)
 		if err != nil {
@@ -74,7 +75,7 @@ func runServer(config_ *config.Config) {
 	// This is where the gRPC-Gateway proxies the requests
 	conn, err := grpc.DialContext(
 		context.Background(),
-		"0.0.0.0:8080",
+		fmt.Sprintf("0.0.0.0:%s", config_.Application.GrpcPort),
 		grpc.WithBlock(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
@@ -91,11 +92,11 @@ func runServer(config_ *config.Config) {
 	}
 
 	gwServer := &http.Server{
-		Addr:    ":8090",
+		Addr:    fmt.Sprintf(":%s", config_.Application.GrpcGatewayPort),
 		Handler: gwmux,
 	}
 
-	log.Println("Serving gRPC-Gateway on http://0.0.0.0:8090")
+	log.Printf("Serving gRPC-Gateway on http://0.0.0.0:%s", config_.Application.GrpcGatewayPort)
 	err = gwServer.ListenAndServe()
 	if err != nil {
 		panic(err)

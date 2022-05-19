@@ -12,6 +12,8 @@ type File struct {
 
 type Application struct {
 	Host                  string       `yaml:"host"`
+	GrpcPort              string       `yaml:"grpc_port"`
+	GrpcGatewayPort       string       `yaml:"grpc_gateway_port"`
 	HistoryStartTimeStamp int64        `yaml:"historyStartTimeStamp"`
 	HistoryInterval       uint64       `yaml:"historyInterval"`
 	ValidateInternal      bool         `yaml:"validateInternal"`

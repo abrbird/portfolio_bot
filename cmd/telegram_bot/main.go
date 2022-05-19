@@ -20,7 +20,10 @@ func main() {
 	//	5*time.Second,
 	//)
 	//appClient := grpc_client.New(config_.ClientAPIKeys.AnyClient, fmt.Sprintf("%s:8080", "0.0.0.0"))
-	appClient := grpc_client.New(config_.ClientAPIKeys.AnyClient, fmt.Sprintf("%s:8080", config_.Application.Host))
+	appClient := grpc_client.New(
+		config_.ClientAPIKeys.AnyClient,
+		fmt.Sprintf("%s:%s", config_.Application.Host, config_.Application.GrpcPort),
+	)
 
 	tgBot := bot.New(config_.ExternalAPIKeys.Telegram, appClient, false)
 	log.Printf("Authorized on account %s \n", tgBot.GetSelf().UserName)
