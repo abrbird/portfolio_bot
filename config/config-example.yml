@@ -1,5 +1,8 @@
 
 application:
+  host: app
+  grpc_port: 8080
+  grpc_gateway_port: 8090
   validateInternal: true  # use client authentication or not
 
   baseCurrency: "USD"
