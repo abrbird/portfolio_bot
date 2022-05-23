@@ -32,7 +32,7 @@ func main() {
 	args := flags.Args()
 	if len(args) < 1 {
 		flags.Usage()
-		return
+		log.Fatal("goose: not enough args")
 	}
 
 	dbstring, command := config_.Database.Uri(), args[1]

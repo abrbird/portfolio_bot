@@ -2,11 +2,11 @@ package sql_repository
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"github.com/pkg/errors"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
 	"strings"
+	"time"
 )
 
 type SQLMarketPriceRepository struct {
@@ -16,7 +16,7 @@ type SQLMarketPriceRepository struct {
 type SQLMarketPrice struct {
 	MarketItemId int64
 	Price        float64
-	Timestamp    sql.NullTime
+	Timestamp    time.Time
 }
 
 const MarketPriceFieldsNum = 3
@@ -46,7 +46,7 @@ func (r SQLMarketPriceRepository) RetrieveLast(ctx context.Context, marketItemId
 	marketPrice := &domain.MarketPrice{
 		MarketItemId: sqlMarketPrice.MarketItemId,
 		Price:        sqlMarketPrice.Price,
-		Timestamp:    sqlMarketPrice.Timestamp.Time.Unix(),
+		Timestamp:    sqlMarketPrice.Timestamp.Unix(),
 	}
 	return domain.MarketPriceRetrieve{MarketPrice: marketPrice, Error: nil}
 }
@@ -94,7 +94,7 @@ func (r SQLMarketPriceRepository) RetrieveInterval(
 			domain.MarketPrice{
 				MarketItemId: sqlMarketPrice.MarketItemId,
 				Price:        sqlMarketPrice.Price,
-				Timestamp:    sqlMarketPrice.Timestamp.Time.Unix(),
+				Timestamp:    sqlMarketPrice.Timestamp.Unix(),
 			})
 	}
 
