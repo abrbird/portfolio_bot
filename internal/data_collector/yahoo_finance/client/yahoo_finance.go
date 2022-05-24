@@ -1,10 +1,13 @@
-package yahoo_finance
+package client
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"gitlab.ozon.dev/zBlur/homework-2/config"
+	"gitlab.ozon.dev/zBlur/homework-2/internal/data_collector/yahoo_finance"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
+	"gitlab.ozon.dev/zBlur/homework-2/internal/repository"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,23 +17,23 @@ import (
 
 const ServiceName = "YahooFinance"
 
-type Client struct {
+type YahooFinanceClient struct {
 	apiKey string
 	url    string
 }
 
-func New(cfg config.DataSource) *Client {
-	return &Client{
+func New(cfg config.DataSource) *YahooFinanceClient {
+	return &YahooFinanceClient{
 		apiKey: cfg.ApiKey,
 		url:    cfg.Url,
 	}
 }
 
-func (c *Client) GetHistoricalMap(
+func (c *YahooFinanceClient) GetHistoricalMap(
 	marketItems []domain.MarketItem,
 	interval string,
 	range_ string,
-) (*map[domain.MarketItem]Historical, error) {
+) (*map[domain.MarketItem]yahoo_finance.Historical, error) {
 	cl := http.Client{Timeout: 10 * time.Second}
 
 	itemCodes := make([]string, len(marketItems))
@@ -44,8 +47,6 @@ func (c *Client) GetHistoricalMap(
 
 	urlReq := fmt.Sprintf("%s/v8/finance/spark?symbols=%s&interval=%s&range=%s",
 		c.url, strings.Join(itemCodes, ","), interval, range_)
-
-	//fmt.Println(urlReq)
 
 	req, err := http.NewRequest(http.MethodGet, urlReq, nil)
 	if err != nil {
@@ -66,7 +67,7 @@ func (c *Client) GetHistoricalMap(
 		return nil, err
 	}
 
-	historicalMapStr := make(map[string]Historical, 0)
+	historicalMapStr := make(map[string]yahoo_finance.Historical, 0)
 
 	err = json.Unmarshal(b, &historicalMapStr)
 	if err != nil {
@@ -74,7 +75,7 @@ func (c *Client) GetHistoricalMap(
 		return nil, err
 	}
 
-	historicalMap := make(map[domain.MarketItem]Historical, len(historicalMapStr))
+	historicalMap := make(map[domain.MarketItem]yahoo_finance.Historical, len(historicalMapStr))
 	for _, item := range marketItems {
 		var codeKey string
 		if item.Type == domain.MarketItemCryptoCurrencyType {
@@ -89,4 +90,35 @@ func (c *Client) GetHistoricalMap(
 	}
 
 	return &historicalMap, nil
+}
+
+func Collect(
+	availableMarketItems []domain.MarketItem,
+	period string,
+	range_ string,
+	repo repository.MarketPriceRepository,
+	clnt Client,
+) (success int64, errors int64, err error) {
+	historicalMap, err := clnt.GetHistoricalMap(
+		availableMarketItems,
+		period,
+		range_,
+	)
+	if err != nil {
+		log.Println(err)
+		return 0, 0, err
+	}
+
+	errorsCount := int64(0)
+	successCount := int64(0)
+	for marketItem, historical := range *historicalMap {
+		marketPrices := historical.ToMarketPriceArray(marketItem)
+		inserted, err := repo.BulkCreate(context.Background(), marketPrices)
+		if err != nil {
+			log.Println(err)
+		}
+		successCount += inserted
+		errorsCount += int64(len(*marketPrices)) - inserted
+	}
+	return successCount, errorsCount, nil
 }

@@ -36,7 +36,8 @@ func TimeoutInterceptor(ctx context.Context, req interface{}, info *grpc.UnarySe
 }
 
 func AuthInterceptorBuilder(keys config.ClientAPIKeys) func(
-	ctx context.Context, req interface{},
+	ctx context.Context,
+	req interface{},
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
