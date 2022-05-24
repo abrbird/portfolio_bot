@@ -4,6 +4,7 @@ import (
 	"context"
 	"gitlab.ozon.dev/zBlur/homework-2/config"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/data_collector/yahoo_finance"
+	"gitlab.ozon.dev/zBlur/homework-2/internal/data_collector/yahoo_finance/client"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/repository"
 	"gitlab.ozon.dev/zBlur/homework-2/internal/service"
@@ -37,8 +38,8 @@ func getLastTimeStamps(mis []domain.MarketItem, defaultTimeStamp int64, repo rep
 func Collect(config_ *config.Config, serv service.Service, repo repository.Repository) error {
 	log.Println("running task...")
 
-	baseCurrency := repo.Currency().Retrieve(context.Background(), config_.Application.BaseCurrency)
-	log.Println("base currency: ", baseCurrency.Currency)
+	//baseCurrency := repo.Currency().Retrieve(context.Background(), config_.Application.BaseCurrency)
+	//log.Println("base currency: ", baseCurrency.Currency)
 
 	configMarketItems := config_.Application.GetDomainMarketItems()
 	availableMarketItemsRetrieve := serv.MarketItem().RetrieveMany(context.Background(), configMarketItems, repo.MarketItem())
@@ -49,10 +50,13 @@ func Collect(config_ *config.Config, serv service.Service, repo repository.Repos
 	}
 	availableMarketItems := availableMarketItemsRetrieve.MarketItems
 
-	yfDataSource, ok := config_.DataSourcesMap[yahoo_finance.ServiceName]
-	if ok && len(availableMarketItems) > 0 {
-		cl := yahoo_finance.New(yfDataSource)
+	if len(availableMarketItems) == 0 {
+		log.Printf("no available MarketItem")
+		return nil
+	}
 
+	yfDataSource, ok := config_.DataSourcesMap[client.ServiceName]
+	if ok {
 		now := time.Now()
 		lastTimeStamps := getLastTimeStamps(
 			availableMarketItemsRetrieve.MarketItems,
@@ -62,39 +66,23 @@ func Collect(config_ *config.Config, serv service.Service, repo repository.Repos
 		minTimeStamp := getMinTimeStamp(lastTimeStamps, now.Unix())
 
 		rangeYF := yahoo_finance.GetRange(minTimeStamp, now.Unix())
-		periodYF, err := yahoo_finance.GetInterval(config_.Application.HistoryInterval)
+		intervalYF, err := yahoo_finance.GetInterval(config_.Application.HistoryInterval)
 		if err != nil {
 			log.Println(err)
 			return err
 		}
 
-		if len(availableMarketItems) > 0 {
-			log.Printf("%s started. range: %s, period: %s\n", yfDataSource.Name, rangeYF, periodYF)
+		log.Printf("%s started. range: %s, interval: %s\n", yfDataSource.Name, rangeYF, intervalYF)
 
-			historicalMap, err := cl.GetHistoricalMap(
-				availableMarketItems,
-				periodYF,
-				rangeYF,
-			)
-			if err != nil {
-				log.Println(err)
-				return err
-			}
+		marketPriceRepo := repo.MarketPrice()
+		cl := client.New(yfDataSource)
+		successCount, errorsCount, err := client.Collect(availableMarketItems, intervalYF, rangeYF, marketPriceRepo, cl)
 
-			errorsCount := int64(0)
-			successCount := int64(0)
-			for marketItem, historical := range *historicalMap {
-				marketPrices := historical.ToMarketPriceArray(marketItem)
-				inserted, err := repo.MarketPrice().BulkCreate(context.Background(), marketPrices)
-				if err != nil {
-					log.Println(err)
-				}
-				successCount += inserted
-				errorsCount += int64(len(*marketPrices)) - inserted
-			}
-			log.Printf("data collection %s done. Success: %d, Errors: %d\n", yfDataSource.Name, successCount, errorsCount)
-		} else {
-			log.Printf("no available MarketItem")
+		log.Printf("data collection %s done. Success: %d, Errors: %d\n", yfDataSource.Name, successCount, errorsCount)
+
+		if err != nil {
+			log.Println(err)
+			return err
 		}
 	}
 

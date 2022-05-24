@@ -10,7 +10,68 @@ import (
 	"testing"
 )
 
-func TestRetrieveByType(t *testing.T) {
+func TestMarketItemRetrieveById(t *testing.T) {
+	mc := minimock.NewController(t)
+	defer mc.Finish()
+
+	marketItemId := int64(1)
+
+	mockRepo := mock_repository.NewMarketItemRepositoryMock(mc)
+	mockRepo.RetrieveByIdMock.Expect(
+		context.Background(),
+		marketItemId,
+	).Return(
+		domain.MarketItemRetrieve{
+			MarketItem: &domain.MarketItem{
+				Id:    1,
+				Title: "Title",
+				Code:  "Code",
+				Type:  "Type",
+			},
+			Error: nil,
+		},
+	)
+	marketItemService := service_impl.MarketItemService{}
+	marketItemRetrieve := marketItemService.RetrieveById(context.Background(), marketItemId, mockRepo)
+
+	assert.Nil(t, marketItemRetrieve.Error)
+	assert.NotNil(t, marketItemRetrieve.MarketItem)
+	assert.Equal(t, marketItemId, marketItemRetrieve.MarketItem.Id)
+}
+
+func TestMarketItemRetrieve(t *testing.T) {
+	mc := minimock.NewController(t)
+	defer mc.Finish()
+
+	codeBTC := "BTC"
+	typeCrypto := "crypto"
+
+	mockRepo := mock_repository.NewMarketItemRepositoryMock(mc)
+	mockRepo.RetrieveMock.Expect(
+		context.Background(),
+		codeBTC,
+		typeCrypto,
+	).Return(
+		domain.MarketItemRetrieve{
+			MarketItem: &domain.MarketItem{
+				Id:    1,
+				Title: "Title",
+				Code:  codeBTC,
+				Type:  typeCrypto,
+			},
+			Error: nil,
+		},
+	)
+	marketItemService := service_impl.MarketItemService{}
+	marketItemRetrieve := marketItemService.Retrieve(context.Background(), codeBTC, typeCrypto, mockRepo)
+
+	assert.Nil(t, marketItemRetrieve.Error)
+	assert.NotNil(t, marketItemRetrieve.MarketItem)
+	assert.Equal(t, codeBTC, marketItemRetrieve.MarketItem.Code)
+	assert.Equal(t, typeCrypto, marketItemRetrieve.MarketItem.Type)
+}
+
+func TestMarketItemRetrieveByType(t *testing.T) {
 	mc := minimock.NewController(t)
 	defer mc.Finish()
 
@@ -64,7 +125,7 @@ func TestRetrieveByType(t *testing.T) {
 	}
 }
 
-func TestRetrieveMany(t *testing.T) {
+func TestMarketItemRetrieveMany(t *testing.T) {
 	mc := minimock.NewController(t)
 	defer mc.Finish()
 
