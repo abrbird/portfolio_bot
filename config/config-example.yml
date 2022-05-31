@@ -1,0 +1,70 @@
+
+application:
+  host: app
+  grpc_port: 8080
+  grpc_gateway_port: 8090
+  validateInternal: true  # use client authentication or not
+
+  baseCurrency: "USD"
+  historyStartTimeStamp: 1640995200  # 2022-01-01 00:00:00
+  historyInterval: 3600  # 1 hour
+  availableMarketItems:
+    - code: "BTC"
+      type: "CryptoCurrency"
+    - code: "ETH"
+      type: "CryptoCurrency"
+    - code: "BNB"
+      type: "CryptoCurrency"
+    - code: "XRP"
+      type: "CryptoCurrency"
+    - code: "ADA"
+      type: "CryptoCurrency"
+    - code: "SOL"
+      type: "CryptoCurrency"
+    - code: "DOGE"
+      type: "CryptoCurrency"
+
+    - code: "AAPL"
+      type: "Stock"
+    - code: "EQT"
+      type: "Stock"
+    - code: "UPST"
+      type: "Stock"
+    - code: "X"
+      type: "Stock"
+    - code: "EBAY"
+      type: "Stock"
+    - code: "F"
+      type: "Stock"
+    - code: "AMZN"
+      type: "Stock"
+
+    - code: "AAAU"
+      type: "ETF"
+    - code: "TQQQ"
+      type: "ETF"
+    - code: "SPY"
+      type: "ETF"
+    - code: "UVXY"
+      type: "ETF"
+
+
+clientApiKeys:
+  anyClient: "random-string-that-clients-will-use-as-APIKey"
+
+externalApiKeys:
+  telegram: "telegram-bot-APIKey"
+
+
+database:
+  db: "db-name"
+  host: "db-host"
+  port: 5432
+  user: "db-user"
+  password: "db-pass"
+
+
+dataSources:
+  - name: "YahooFinance"
+    apiKey: "YahooFinance-ApiKey"
+    url: "https://yfapi.net"
