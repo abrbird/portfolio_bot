@@ -23,7 +23,7 @@ test:
     - go version # Версия Go
   script:
     - mkdir -p $GOPATH/src
-    - mv $CI_PROJECT_DIR/src/* $GOPATH/src
+    - mv $CI_PROJECT_DIR/* $GOPATH/src
     - cd $GOPATH/src
     - go test ./tests/service_tests
 
