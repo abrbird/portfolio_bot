@@ -3,8 +3,9 @@ stages:
   - test
   - deploy
 
-# before_script:
-#   - docker info
+variables:
+  DOCKER_AUTH_CONFIG: '{ "auths": { "https://index.docker.io/v1/": { "auth": "$DOCKER_AUTH" } }}'
+
 
 build:
   stage: build
