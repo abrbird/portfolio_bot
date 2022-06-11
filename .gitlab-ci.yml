@@ -13,7 +13,7 @@ build:
     - docker:20.10.16-dind
   script:
     - docker login --username iam --password-stdin cr.yandex < $REGISTRY_IAM_TOKEN
-    - docker build -f ./Dockerfile -t cr.yandex/crpa8gap9g6vl6hshofn/hw_2_portfolio_bot:gitlab-$CI_COMMIT_SHORT_SHA .
+    - docker build -f ./Dockerfile-single -t cr.yandex/crpa8gap9g6vl6hshofn/hw_2_portfolio_bot:gitlab-$CI_COMMIT_SHORT_SHA .
     - docker push cr.yandex/crpa8gap9g6vl6hshofn/hw_2_portfolio_bot:gitlab-$CI_COMMIT_SHORT_SHA
 
 test:

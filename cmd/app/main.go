@@ -29,7 +29,8 @@ func runServer(config_ *config.Config) {
 
 	db, err := server.NewDB(config_.Database.Uri())
 	if err != nil {
-		log.Fatalf("db connection failed: %v", err)
+		//log.Fatalf("db connection failed: %v", err)
+		log.Println("db connection failed: %v", err)
 	}
 	defer func() {
 		err = db.Close()
