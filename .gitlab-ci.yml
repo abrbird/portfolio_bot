@@ -1,5 +1,6 @@
 stages:
   - build
+  - test
   - deploy
 
 # before_script:
@@ -13,6 +14,17 @@ build:
     - docker login --username iam --password-stdin cr.yandex < $REGISTRY_IAM_TOKEN
     - docker build -f ./Dockerfile -t cr.yandex/crpa8gap9g6vl6hshofn/hw_2_portfolio_bot:gitlab-$CI_COMMIT_SHORT_SHA .
     - docker push cr.yandex/crpa8gap9g6vl6hshofn/hw_2_portfolio_bot:gitlab-$CI_COMMIT_SHORT_SHA
+
+test:
+  stage: test
+  image: golang:1.18
+  before_script: # Вспомогательные команды, которые будут запущены перед запуском тестов
+    - go version # Версия Go
+  script:
+    - mkdir -p $GOPATH/src
+    - mv $CI_PROJECT_DIR/src/* $GOPATH/src
+    - cd $GOPATH/src
+    - go test ./tests/service_tests
 
 deploy:
   image: cr.yandex/crpa8gap9g6vl6hshofn/builder:latest

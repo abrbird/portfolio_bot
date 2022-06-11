@@ -1,4 +1,4 @@
-package tests
+package data_collector_tests
 
 import (
 	"context"
