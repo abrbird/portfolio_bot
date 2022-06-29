@@ -2,9 +2,7 @@
 pgadmin
 postgres-data
 
-api/ghz-api.proto
-#config/config.yml
-goose
-
+config/config.yml
 .gitlab-ci.yml
 k8s.yaml
+Dockerfile-single
