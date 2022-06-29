@@ -3,9 +3,9 @@ package graph
 import (
 	"bytes"
 	"fmt"
+	"github.com/abrbird/portfolio_bot/pkg/api"
 	"github.com/wcharczuk/go-chart/v2"
 	"github.com/wcharczuk/go-chart/v2/drawing"
-	"gitlab.ozon.dev/zBlur/homework-2/pkg/api"
 	"math"
 	"time"
 )

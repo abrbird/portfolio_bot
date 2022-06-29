@@ -3,8 +3,8 @@ package sql_repository
 import (
 	"context"
 	"fmt"
+	"github.com/abrbird/portfolio_bot/internal/domain"
 	"github.com/pkg/errors"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
 	"strings"
 	"time"
 )

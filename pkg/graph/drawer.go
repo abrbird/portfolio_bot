@@ -2,7 +2,7 @@ package graph
 
 import (
 	"bytes"
-	"gitlab.ozon.dev/zBlur/homework-2/pkg/api"
+	"github.com/abrbird/portfolio_bot/pkg/api"
 )
 
 type Drawer interface {

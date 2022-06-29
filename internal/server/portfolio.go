@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
-	pb "gitlab.ozon.dev/zBlur/homework-2/pkg/api"
+	"github.com/abrbird/portfolio_bot/internal/domain"
+	pb "github.com/abrbird/portfolio_bot/pkg/api"
 )
 
 func (t tserver) RetrieveOrCreatePortfolio(ctx context.Context, req *pb.CreatePortfolioRequest) (*pb.Portfolio, error) {

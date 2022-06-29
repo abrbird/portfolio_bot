@@ -3,8 +3,8 @@ package bot
 import (
 	"errors"
 	"fmt"
+	"github.com/abrbird/portfolio_bot/internal/domain"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
 	"strings"
 )
 

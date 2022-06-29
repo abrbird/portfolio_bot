@@ -2,7 +2,7 @@ package sql_repository
 
 import (
 	"database/sql"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/repository"
+	"github.com/abrbird/portfolio_bot/internal/repository"
 )
 
 type SQLRepository struct {

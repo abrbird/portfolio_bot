@@ -4,13 +4,13 @@ package main
 
 import (
 	"flag"
-	"gitlab.ozon.dev/zBlur/homework-2/config"
+	"github.com/abrbird/portfolio_bot/config"
 	"log"
 	"os"
 
+	_ "github.com/abrbird/portfolio_bot/migrations"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
-	_ "gitlab.ozon.dev/zBlur/homework-2/migrations"
 )
 
 var (

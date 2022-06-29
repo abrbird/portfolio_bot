@@ -2,7 +2,7 @@ package server
 
 import (
 	"context"
-	"gitlab.ozon.dev/zBlur/homework-2/pkg/api"
+	"github.com/abrbird/portfolio_bot/pkg/api"
 )
 
 func (t tserver) AvailableMarketItems(ctx context.Context, req *api.Empty) (*api.MarketItemsResponse, error) {

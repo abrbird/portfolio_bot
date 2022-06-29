@@ -3,7 +3,7 @@ package sql_repository
 import (
 	"context"
 	"database/sql"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
+	"github.com/abrbird/portfolio_bot/internal/domain"
 )
 
 type SQLCurrencyRepository struct {

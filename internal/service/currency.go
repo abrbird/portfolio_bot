@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/repository"
+	"github.com/abrbird/portfolio_bot/internal/domain"
+	"github.com/abrbird/portfolio_bot/internal/repository"
 )
 
 type CurrencyService interface {

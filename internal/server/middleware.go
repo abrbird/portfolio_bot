@@ -2,7 +2,7 @@ package server
 
 import (
 	"context"
-	"gitlab.ozon.dev/zBlur/homework-2/config"
+	"github.com/abrbird/portfolio_bot/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"

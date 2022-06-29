@@ -1,6 +1,6 @@
 package config
 
-import "gitlab.ozon.dev/zBlur/homework-2/internal/domain"
+import "github.com/abrbird/portfolio_bot/internal/domain"
 
 type File struct {
 	Application     Application     `yaml:"application"`

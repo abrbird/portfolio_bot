@@ -2,11 +2,11 @@ package service_tests
 
 import (
 	"context"
+	"github.com/abrbird/portfolio_bot/internal/domain"
+	"github.com/abrbird/portfolio_bot/internal/repository/mock_repository"
+	"github.com/abrbird/portfolio_bot/internal/service/service_impl"
 	"github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/assert"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/repository/mock_repository"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/service/service_impl"
 	"testing"
 )
 

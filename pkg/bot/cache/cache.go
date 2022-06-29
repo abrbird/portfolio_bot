@@ -2,8 +2,8 @@ package cache
 
 import (
 	"fmt"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
-	"gitlab.ozon.dev/zBlur/homework-2/pkg/api"
+	"github.com/abrbird/portfolio_bot/internal/domain"
+	"github.com/abrbird/portfolio_bot/pkg/api"
 	"strings"
 	"sync"
 	"time"

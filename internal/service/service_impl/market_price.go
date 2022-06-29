@@ -3,9 +3,9 @@ package service_impl
 import (
 	"context"
 	"errors"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/repository"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/service"
+	"github.com/abrbird/portfolio_bot/internal/domain"
+	"github.com/abrbird/portfolio_bot/internal/repository"
+	"github.com/abrbird/portfolio_bot/internal/service"
 )
 
 type MarketPriceService struct{}

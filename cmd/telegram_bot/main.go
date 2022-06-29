@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"gitlab.ozon.dev/zBlur/homework-2/config"
-	"gitlab.ozon.dev/zBlur/homework-2/pkg/bot"
-	"gitlab.ozon.dev/zBlur/homework-2/pkg/client/grpc_client"
+	"github.com/abrbird/portfolio_bot/config"
+	"github.com/abrbird/portfolio_bot/pkg/bot"
+	"github.com/abrbird/portfolio_bot/pkg/client/grpc_client"
 	"log"
 )
 

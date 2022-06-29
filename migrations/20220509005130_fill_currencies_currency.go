@@ -3,9 +3,9 @@ package migrations
 import (
 	"database/sql"
 	"fmt"
+	"github.com/abrbird/portfolio_bot/internal/domain"
 	"github.com/pkg/errors"
 	"github.com/pressly/goose/v3"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
 	"strings"
 )
 

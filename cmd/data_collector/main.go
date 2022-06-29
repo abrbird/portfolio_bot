@@ -1,12 +1,12 @@
 package main
 
 import (
+	"github.com/abrbird/portfolio_bot/config"
+	"github.com/abrbird/portfolio_bot/internal/data_collector"
+	"github.com/abrbird/portfolio_bot/internal/repository/sql_repository"
+	"github.com/abrbird/portfolio_bot/internal/server"
+	"github.com/abrbird/portfolio_bot/internal/service/service_impl"
 	"github.com/jasonlvhit/gocron"
-	"gitlab.ozon.dev/zBlur/homework-2/config"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/data_collector"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/repository/sql_repository"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/server"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/service/service_impl"
 	"log"
 )
 

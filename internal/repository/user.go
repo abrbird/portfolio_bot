@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
+	"github.com/abrbird/portfolio_bot/internal/domain"
 )
 
 type UserRepository interface {

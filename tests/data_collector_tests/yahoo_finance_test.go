@@ -2,13 +2,13 @@ package data_collector_tests
 
 import (
 	"context"
+	"github.com/abrbird/portfolio_bot/internal/data_collector/yahoo_finance"
+	"github.com/abrbird/portfolio_bot/internal/data_collector/yahoo_finance/client"
+	"github.com/abrbird/portfolio_bot/internal/data_collector/yahoo_finance/client_mock"
+	"github.com/abrbird/portfolio_bot/internal/domain"
+	"github.com/abrbird/portfolio_bot/internal/repository/mock_repository"
 	"github.com/gojuno/minimock/v3"
 	"github.com/stretchr/testify/assert"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/data_collector/yahoo_finance"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/data_collector/yahoo_finance/client"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/data_collector/yahoo_finance/client_mock"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/repository/mock_repository"
 	"testing"
 )
 

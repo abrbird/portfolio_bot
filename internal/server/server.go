@@ -2,11 +2,11 @@ package server
 
 import (
 	"database/sql"
+	"github.com/abrbird/portfolio_bot/config"
+	"github.com/abrbird/portfolio_bot/internal/repository"
+	"github.com/abrbird/portfolio_bot/internal/service"
+	"github.com/abrbird/portfolio_bot/pkg/api"
 	_ "github.com/lib/pq"
-	"gitlab.ozon.dev/zBlur/homework-2/config"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/repository"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/service"
-	"gitlab.ozon.dev/zBlur/homework-2/pkg/api"
 )
 
 //var (

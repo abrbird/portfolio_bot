@@ -3,8 +3,8 @@ package crypto_compare
 import (
 	"encoding/json"
 	"fmt"
-	"gitlab.ozon.dev/zBlur/homework-2/config"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
+	"github.com/abrbird/portfolio_bot/config"
+	"github.com/abrbird/portfolio_bot/internal/domain"
 	"io/ioutil"
 	"log"
 	"net/http"

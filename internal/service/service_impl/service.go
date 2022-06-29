@@ -1,6 +1,6 @@
 package service_impl
 
-import "gitlab.ozon.dev/zBlur/homework-2/internal/service"
+import "github.com/abrbird/portfolio_bot/internal/service"
 
 type Service struct {
 	userService          *UserService

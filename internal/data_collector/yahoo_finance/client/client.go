@@ -1,8 +1,8 @@
 package client
 
 import (
-	"gitlab.ozon.dev/zBlur/homework-2/internal/data_collector/yahoo_finance"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
+	"github.com/abrbird/portfolio_bot/internal/data_collector/yahoo_finance"
+	"github.com/abrbird/portfolio_bot/internal/domain"
 )
 
 type Client interface {

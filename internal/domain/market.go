@@ -1,6 +1,6 @@
 package domain
 
-import pb "gitlab.ozon.dev/zBlur/homework-2/pkg/api"
+import pb "github.com/abrbird/portfolio_bot/pkg/api"
 
 const MarketItemStockType = "Stock"
 const MarketItemETFType = "ETF"

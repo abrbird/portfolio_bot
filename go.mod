@@ -1,4 +1,4 @@
-module gitlab.ozon.dev/zBlur/homework-2
+module github.com/abrbird/portfolio_bot
 
 go 1.18
 

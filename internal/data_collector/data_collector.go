@@ -2,12 +2,12 @@ package data_collector
 
 import (
 	"context"
-	"gitlab.ozon.dev/zBlur/homework-2/config"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/data_collector/yahoo_finance"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/data_collector/yahoo_finance/client"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/domain"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/repository"
-	"gitlab.ozon.dev/zBlur/homework-2/internal/service"
+	"github.com/abrbird/portfolio_bot/config"
+	"github.com/abrbird/portfolio_bot/internal/data_collector/yahoo_finance"
+	"github.com/abrbird/portfolio_bot/internal/data_collector/yahoo_finance/client"
+	"github.com/abrbird/portfolio_bot/internal/domain"
+	"github.com/abrbird/portfolio_bot/internal/repository"
+	"github.com/abrbird/portfolio_bot/internal/service"
 	"log"
 	"time"
 )

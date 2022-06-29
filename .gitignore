@@ -5,3 +5,6 @@ postgres-data
 api/ghz-api.proto
 #config/config.yml
 goose
+
+.gitlab-ci.yml
+k8s.yaml
